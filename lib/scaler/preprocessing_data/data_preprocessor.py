@@ -67,7 +67,7 @@ class DataPreprocessor:
         return dataX
 
     def init_data_lstm(self, sliding, scaler_method):
-        print('>>> start init data for training LSTM model <<<')
+        #print('>>> start init data for training LSTM model <<<')
         data_normalizer = DataNormalizer(scaler_method)
         x_timeseries, y_time_series, self.y_scaler = data_normalizer.normalize(
             self.x_data, self.y_data)
@@ -89,9 +89,9 @@ class DataPreprocessor:
         y_test = self.y_data[train_point:]
         y_test = np.array(y_test)
 
-        print(x_train.shape, x_test.shape)
-        print(y_train.shape, y_test.shape)
-        print('>>> Init data for training model complete <<<')
+        # print(x_train.shape, x_test.shape)
+        # print(y_train.shape, y_test.shape)
+        # print('>>> Init data for training model complete <<<')
 
         return x_train, y_train, x_test, y_test, data_normalizer
 

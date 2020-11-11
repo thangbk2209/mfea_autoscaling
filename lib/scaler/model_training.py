@@ -4,6 +4,7 @@ from lib.includes.utility import *
 from lib.scaler.models.ann_model import AnnPredictor
 from lib.scaler.models.lstm_model import LstmPredictor
 from lib.evolution_algorithms.genetic_algorithm import GenerticAlgorithmEngine
+from lib.gaussian_process.gaussian_process import GaussProcess
 
 
 class ModelTrainer:
@@ -78,15 +79,15 @@ class ModelTrainer:
         if fitness_type is None:
             fitness_type = Config.FITNESS_TYPE
 
-        scaler_method = item['scaler']
+        scaler_method = int(item['scaler'])
         sliding = item['sliding']
         batch_size = item['batch_size']
-
+        #print("vodofds"+str(scaler_method))
         # num_units = item['num_units']
         num_units = generate_units_size(item['network_size'], item['layer_size'])
 
-        activation = item['activation']
-        optimizer = item['optimizer']
+        activation = int(item['activation'])
+        optimizer = int(item['optimizer'])
         dropout = item['dropout']
         learning_rate = item['learning_rate']
 
@@ -147,8 +148,10 @@ class ModelTrainer:
         #     'learning_rate': 3e-4
         # }
         # self.fit_with_lstm(item, fitness_type='bayesian_autoscaling')
-        genetic_algorithm_ng = GenerticAlgorithmEngine(self.fit_with_lstm)
-        genetic_algorithm_ng.evolve(Config.MAX_ITER)
+        #genetic_algorithm_ng = GenerticAlgorithmEngine(self.fit_with_lstm)
+        #genetic_algorithm_ng.evolve(Config.MAX_ITER)
+        gp=GaussProcess(self.fit_with_lstm)
+        gp.fit()
 
     def train(self):
         print('[3] >>> Start choosing model and experiment')

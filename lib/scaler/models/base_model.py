@@ -1,5 +1,4 @@
-
-import math
+#import math
 import os
 
 import numpy as np
@@ -67,7 +66,7 @@ class BaseModel:
             model_checkpoint = ModelCheckpoint(f'{self.model_path}.h5', monitor='val_loss', mode='min',
                                                verbose=Config.VERBOSE, save_best_only=True)
             callbacks = [es, model_checkpoint]
-
+        
         self.history = self.model.fit(
             x, y, validation_split=validation_split, epochs=epochs, batch_size=batch_size, verbose=Config.VERBOSE,
             shuffle=False, callbacks=callbacks)
