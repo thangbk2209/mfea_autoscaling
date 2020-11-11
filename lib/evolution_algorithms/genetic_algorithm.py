@@ -69,6 +69,7 @@ class GenerticAlgorithmEngine:
     
     def evaluate(self, position):
         fitness, model = self.fitness_function(self.decode_position(position))
+        #print(fitness)
         return fitness, model
 
     def cal_rank(self, pop):
