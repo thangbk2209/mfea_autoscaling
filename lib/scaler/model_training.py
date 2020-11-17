@@ -1,3 +1,5 @@
+import math
+
 from config import *
 from lib.scaler.preprocessing_data.data_preprocessor import DataPreprocessor
 from lib.includes.utility import *
@@ -5,6 +7,7 @@ from lib.scaler.models.ann_model import AnnPredictor
 from lib.scaler.models.lstm_model import LstmPredictor
 from lib.evolution_algorithms.genetic_algorithm import GenerticAlgorithmEngine
 from lib.gaussian_process.gaussian_process import GaussProcess
+from lib.evaluation.fitness_manager import FitnessManager
 
 
 class ModelTrainer:
@@ -12,8 +15,7 @@ class ModelTrainer:
         self.lstm_config = Config.LSTM_CONFIG
         self.ann_config = Config.ANN_CONFIG
         self.results_save_path = Config.RESULTS_SAVE_PATH
-
-        self.data_preprocessor = DataPreprocessor()
+        self.fitness_manager = FitnessManager()
 
     def fit_with_ann(self, item, fitness_type=None):
         scaler_method = item['scaler']
@@ -74,7 +76,12 @@ class ModelTrainer:
         }
         fitness, ann_predictor = self.fit_with_ann(item)
 
-    def fit_with_lstm(self, item, fitness_type=None):
+    def fit_with_lstm(self, item, cloud_metrics=None,  fitness_type=None):
+        if cloud_metrics is None:
+            cloud_metrics = {
+                'train_data_type': 'mem',
+                'predict_data': 'mem'
+            }
 
         if fitness_type is None:
             fitness_type = Config.FITNESS_TYPE
@@ -82,7 +89,6 @@ class ModelTrainer:
         scaler_method = int(item['scaler'])
         sliding = item['sliding']
         batch_size = item['batch_size']
-        #print("vodofds"+str(scaler_method))
         # num_units = item['num_units']
         num_units = generate_units_size(item['network_size'], item['layer_size'])
 
@@ -96,6 +102,7 @@ class ModelTrainer:
             activation = Config.ACTIVATIONS[activation - 1]
             optimizer = Config.OPTIMIZERS[optimizer - 1]
 
+        self.data_preprocessor = DataPreprocessor(cloud_metrics)
         x_train, y_train, x_test, y_test, data_normalizer = \
             self.data_preprocessor.init_data_lstm(sliding, scaler_method)
 
@@ -104,6 +111,7 @@ class ModelTrainer:
         model_name = create_name(input_shape=input_shape, output_shape=output_shape, batch_size=batch_size,
                                  num_units=num_units, activation=activation, optimizer=optimizer, dropout=dropout,
                                  learning_rate=learning_rate)
+
         folder_path = f'{self.results_save_path}models'
         gen_folder_in_path(folder_path)
         model_path = f'{folder_path}/{model_name}'
@@ -122,8 +130,12 @@ class ModelTrainer:
 
         lstm_predictor.fit(x_train, y_train, validation_split=Config.VALID_SIZE,
                            batch_size=batch_size, epochs=Config.EPOCHS)
-        # if fitness_type == 'validation_error':
-        fitness = lstm_predictor.history.history['val_loss'][-1]
+
+        validation_point = int(Config.VALID_SIZE * x_train.shape[0])
+        x_valid = x_train[validation_point:]
+        y_valid = y_train[validation_point:]
+        fitness = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
+
         # elif fitness_type == 'scaler_error':
         #     n_train = int((1 - Config.VALID_SIZE) * len(x_train))
         #     x_valid = x_train[n_train:]
@@ -148,10 +160,10 @@ class ModelTrainer:
         #     'learning_rate': 3e-4
         # }
         # self.fit_with_lstm(item, fitness_type='bayesian_autoscaling')
-        #genetic_algorithm_ng = GenerticAlgorithmEngine(self.fit_with_lstm)
-        #genetic_algorithm_ng.evolve(Config.MAX_ITER)
-        gp=GaussProcess(self.fit_with_lstm)
-        gp.fit()
+        # genetic_algorithm_ng = GenerticAlgorithmEngine(self.fit_with_lstm)
+        # genetic_algorithm_ng.evolve(Config.MAX_ITER)
+        gp = GaussProcess(self.fit_with_lstm)
+        gp.optimize()
 
     def train(self):
         print('[3] >>> Start choosing model and experiment')

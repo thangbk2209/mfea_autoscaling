@@ -10,9 +10,11 @@ from lib.scaler.preprocessing_data.data_normalizer import DataNormalizer
 
 
 class DataPreprocessor:
-    def __init__(self):
+    def __init__(self, metrics):
         self.train_size = Config.TRAIN_SIZE
         self.valid_size = Config.VALID_SIZE
+        self.train_data_type = metrics['train_data_type']
+        self.predict_data = metrics['predict_data']
         self.google_trace_config = Config.GOOGLE_TRACE_DATA_CONFIG
         self.read_data()
 
@@ -26,17 +28,17 @@ class DataPreprocessor:
 
         if Config.DATA_EXPERIMENT == 'google_trace':
             # DEFINE X DATA
-            if self.google_trace_config['train_data_type'] == 'cpu_mem':
+            if self.train_data_type == 'cpu_mem':
                 x_data = [official_data['cpu'], official_data['mem']]
-            elif self.google_trace_config['train_data_type'] == 'cpu':
+            elif self.train_data_type == 'cpu':
                 x_data = [official_data['cpu']]
-            elif self.google_trace_config['train_data_type'] == 'mem':
+            elif self.train_data_type == 'mem':
                 x_data = [official_data['mem']]
 
             # DEFINE Y DATA
-            if self.google_trace_config['predict_data'] == 'cpu':
+            if self.predict_data == 'cpu':
                 y_data = official_data['cpu']
-            elif self.google_trace_config['train_data_type'] == 'mem':
+            elif self.predict_data == 'mem':
                 y_data = official_data['mem']
 
         else:
