@@ -1,5 +1,5 @@
 # example of bayesian optimization for a 1d function from scratch
-from math import sin
+import math
 from math import pi
 from operator import indexOf
 import numpy as np
@@ -132,7 +132,7 @@ class GaussProcess:
 
     def fit(self):
         model = GaussianProcessRegressor()
-        for i in range(1000):
+        for i in range(10):
         # select the next point to sample
             x = self.opt_acquisition(self.X,self.y, model)
         # sample the point
@@ -142,9 +142,11 @@ class GaussProcess:
             #print(self.X)
             print('>x1={},x2={}, f()={}, actual={}'.format(x[0],x[1], est, actual))
         # add the data to the dataset
-
-            self.X = vstack((self.X, [x]))
-            self.y = vstack((self.y, [actual]))
+            if not math.isnan(actual):
+                self.X = vstack((self.X, [x]))
+                self.y = vstack((self.y, [actual]))
+            else:
+                pass
         # update the model
             model.fit(self.X, self.y)
         ix = argmin(self.y)

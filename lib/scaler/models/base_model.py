@@ -70,9 +70,11 @@ class BaseModel:
         self.history = self.model.fit(
             x, y, validation_split=validation_split, epochs=epochs, batch_size=batch_size, verbose=Config.VERBOSE,
             shuffle=False, callbacks=callbacks)
-
-        self.model.load_weights(f'{self.model_path}.h5')
-        os.remove(f'{self.model_path}.h5')
+        try:
+            self.model.load_weights(f'{self.model_path}.h5')
+            os.remove(f'{self.model_path}.h5')
+        except:
+            pass
 
     def predict(self, x):
         return self.model.predict(x)
