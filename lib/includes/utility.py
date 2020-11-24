@@ -140,3 +140,14 @@ def gen_folder_in_path(path):
             os.mkdir(path_infor)
 
     assert os.path.exists(path_infor), f'Can not generate folder in path {path}'
+
+
+def get_random_weight(shape):
+    results = []
+    for _shape_layer in shape:
+        _result = []
+        for _shape_tensor in _shape_layer:
+            _value = tf.random.uniform(_shape_tensor, minval=-1, maxval=1)
+            _result.append(_value)
+        results.append(_result)
+    return results

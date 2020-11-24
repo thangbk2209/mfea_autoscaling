@@ -33,7 +33,7 @@ class GaussProcess:
         self._parse_domain()
         self.population_size = Config.POPULATION_SIZE
         self.max_iteration = Config.MAX_ITER
-    
+
     def gen_sample(self):
         x_sample = []
         for index, value in enumerate(self.type_attr):
@@ -66,7 +66,7 @@ class GaussProcess:
             range_val.append(attr['domain'])
 
         self.name = names
-        
+
         self.type_attr = type_attr
         self.max_val = np.array(max_val)
         self.min_val = np.array(min_val)

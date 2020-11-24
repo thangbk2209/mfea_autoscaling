@@ -76,20 +76,17 @@ class ModelTrainer:
         }
         fitness, ann_predictor = self.fit_with_ann(item)
 
-    def fit_with_lstm(self, item, cloud_metrics=None,  fitness_type=None):
+    def build_lstm(self, item=None, cloud_metrics=None, return_data=True):
         if cloud_metrics is None:
             cloud_metrics = {
                 'train_data_type': 'mem',
                 'predict_data': 'mem'
             }
-
-        if fitness_type is None:
-            fitness_type = Config.FITNESS_TYPE
-
+        
+        # Get hyperparameter information
         scaler_method = int(item['scaler'])
         sliding = item['sliding']
         batch_size = item['batch_size']
-        # num_units = item['num_units']
         num_units = generate_units_size(item['network_size'], item['layer_size'])
 
         activation = int(item['activation'])
@@ -97,10 +94,9 @@ class ModelTrainer:
         dropout = item['dropout']
         learning_rate = item['learning_rate']
 
-        if type(scaler_method) == int and type(activation) == int and type(optimizer) == int:
-            scaler_method = Config.SCALERS[scaler_method - 1]
-            activation = Config.ACTIVATIONS[activation - 1]
-            optimizer = Config.OPTIMIZERS[optimizer - 1]
+        scaler_method = Config.SCALERS[scaler_method - 1]
+        activation = Config.ACTIVATIONS[activation - 1]
+        optimizer = Config.OPTIMIZERS[optimizer - 1]
 
         self.data_preprocessor = DataPreprocessor(cloud_metrics)
         x_train, y_train, x_test, y_test, data_normalizer = \
@@ -108,6 +104,7 @@ class ModelTrainer:
 
         input_shape = [x_train.shape[1], x_train.shape[2]]
         output_shape = [y_train.shape[1]]
+
         model_name = create_name(input_shape=input_shape, output_shape=output_shape, batch_size=batch_size,
                                  num_units=num_units, activation=activation, optimizer=optimizer, dropout=dropout,
                                  learning_rate=learning_rate)
@@ -127,26 +124,41 @@ class ModelTrainer:
             dropout=dropout,
             learning_rate=learning_rate
         )
+        if return_data:
+            return lstm_predictor, x_train, y_train, x_test, y_test, data_normalizer
+        else:
+            return lstm_predictor
 
-        lstm_predictor.fit(x_train, y_train, validation_split=Config.VALID_SIZE,
-                           batch_size=batch_size, epochs=Config.EPOCHS)
+    def fit_with_lstm(self, item=None, weights=None, cloud_metrics=None,  fitness_type=None):
+        
+        # Set up cloud_metrics and fitness_type in case they are None
 
-        validation_point = int(Config.VALID_SIZE * x_train.shape[0])
-        x_valid = x_train[validation_point:]
-        y_valid = y_train[validation_point:]
-        fitness = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
+        if fitness_type is None:
+            fitness_type = Config.FITNESS_TYPE
 
-        # elif fitness_type == 'scaler_error':
-        #     n_train = int((1 - Config.VALID_SIZE) * len(x_train))
-        #     x_valid = x_train[n_train:]
-        #     y_valid = y_train[n_train:]
-        #     fitness_manager = FitnessManager()
-        #     fitness = fitness_manager.evaluate_fitness_scaling(
-        #         lstm_predictor, data_normalizer, x_valid, y_valid)
-        # else:
-        #     print(f'[ERROR] Do not support {fitness_type}')
+        lstm_predictor, x_train, y_train, x_test, y_test, data_normalizer = self.build_lstm(item, cloud_metrics)
 
-        return fitness, lstm_predictor
+        if weights is None:
+            lstm_predictor.fit(x_train, y_train, validation_split=Config.VALID_SIZE,
+                            batch_size=batch_size, epochs=Config.EPOCHS)
+
+            validation_point = int(Config.VALID_SIZE * x_train.shape[0])
+            x_valid = x_train[validation_point:]
+            y_valid = y_train[validation_point:]
+            fitness = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
+
+            return fitness, lstm_predictor
+        else:
+            # Evaluate weights of the model
+            # lstm_predictor.get_weights()
+            # model_weights_shape = lstm_predictor.get_model_shape()
+            lstm_predictor.set_weights(weights)
+            validation_point = int(Config.VALID_SIZE * x_train.shape[0])
+            x_valid = x_train[validation_point:]
+            y_valid = y_train[validation_point:]
+            fitness = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
+            print(fitness)
+            return fitness, lstm_predictor
 
     def train_with_lstm(self):
         # item = {
@@ -162,8 +174,31 @@ class ModelTrainer:
         # self.fit_with_lstm(item, fitness_type='bayesian_autoscaling')
         # genetic_algorithm_ng = GenerticAlgorithmEngine(self.fit_with_lstm)
         # genetic_algorithm_ng.evolve(Config.MAX_ITER)
-        gp = GaussProcess(self.fit_with_lstm)
-        gp.optimize()
+        if Config.METHOD_OPTIMIZE == 'bayesian_mfea':
+            gauss_process = GaussProcess(self.fit_with_lstm)
+            gauss_process.optimize()
+        elif Config.METHOD_OPTIMIZE == 'evolutionary_mfea':
+            cloud_metrics = {
+                'train_data_type': 'mem',
+                'predict_data': 'mem'
+            }
+            item = {
+                'scaler': 1,
+                'sliding': 4,
+                'batch_size': 32,
+                'network_size': 2,
+                'layer_size': 4,
+                'activation': 0,
+                'optimizer': 0,
+                'dropout': 0.5,
+                'learning_rate': 3e-4
+            }
+            lstm_predictor = self.build_lstm(item, cloud_metrics, return_data=False)
+            lstm_shape = lstm_predictor.get_model_shape()
+            random_weights = get_random_weight(lstm_shape)
+            self.fit_with_lstm(item, weights=random_weights, fitness_type='bayesian_autoscaling')
+        else:
+            print('[ERROR] METHOD_OPTIMIZE is not supported')
 
     def train(self):
         print('[3] >>> Start choosing model and experiment')
