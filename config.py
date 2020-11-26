@@ -61,12 +61,13 @@ class Config:
 
         MODEL_EXPERIMENT = 'lstm'  # lstm, ann
         FITNESS_TYPE = 'scaler_error'  # validation_error, scaler_error
+        METHOD_OPTIMIZE = 'evolutionary_mfea'  # evolutionary_mfea, bayesian_mfea
         RESULTS_SAVE_PATH = CORE_DATA_DIR + \
             '/{}/{}/'.format(MODEL_EXPERIMENT, FITNESS_TYPE)
 
         POPULATION_SIZE = 100
         MAX_ITER = 200
-        VERBOSE = 0
+        VERBOSE = 2
         LEARNING_RATE = 3e-4
         EPOCHS = 1
         EARLY_STOPPING = True

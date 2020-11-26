@@ -1,4 +1,3 @@
-#import math
 import os
 
 import numpy as np
@@ -44,6 +43,45 @@ class BaseModel:
             plot_model(self.model, infor_path, show_shapes=True)
         except Exception as ex:
             print('[ERROR] Can not get description of the model')
+
+    def get_model_shape(self):
+        results = []
+        for _layer in self.model.layers:
+            _result = []
+            for _weight in _layer.trainable_weights:
+                _result.append(tf.keras.backend.get_value(tf.shape(_weight)))
+            results.append(_result)
+        return results
+
+    def get_weights(self):
+        print('=== get list layers of model ===')
+        weights = []
+        for _layer in self.model.layers:
+            _weights = []
+            for _weight in _layer.trainable_weights:
+                _weights.append(tf.keras.backend.get_value(_weight))
+            weights.append(_weights)
+
+            # _weight.assign(value)
+                # value = np.random.rand(1, 16)
+                # value = tf.random.uniform((1, 16), minval=-1, maxval=1)
+                # print('=== value: ', value, value.dtype)
+                # print('=== _weight: ', _weight)
+                # print(tf.keras.backend.get_value(_weight))
+                # print('------')
+                # _weight.assign(value)
+                # print(tf.keras.backend.get_value(_weight))
+                # exit(0)
+        #     print(_layer.trainable_weights)
+        #     print(_layer.trainable_weights.__dir__())
+        #     print('=========')
+        # print(self.model.layers)
+        return weights
+
+    def set_weights(self, weights):
+        for i, _layer in enumerate(self.model.layers):
+            for j, _weight in enumerate(_layer.trainable_weights):
+                _weight.assign(weights[i][j])
 
     def plot_learning_curves(self):
         try:

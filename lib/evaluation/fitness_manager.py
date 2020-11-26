@@ -19,11 +19,14 @@ class FitnessManager:
         assert x_valid is not None, '[ERROR] in _evaluate_scaler_error: x_valid is invalid'
         assert y_valid is not None, '[ERROR] in _evaluate_scaler_error:y_valid is invalid'
         assert data_normalizer is not None, '[ERROR] in _evaluate_scaler_error: data_normalizer is invalid'
-        validation_error = model.history.history['val_loss'][-1]
-        if math.isnan(validation_error):
-            return 10
-
+        # validation_error = model.history.history['val_loss'][-1]
+        
+        # if math.isnan(validation_error):
+        #     return 10
+        print('y_valid: ', y_valid)
         y_valid_pred = model.predict(x_valid)
+        print('y_valid_pred: ', y_valid_pred)
+        validation_error = evaluate(y_valid_pred, y_valid)['rmse']
         y_valid_pred = data_normalizer.invert_tranform(y_valid_pred)
         y_valid_real = data_normalizer.invert_tranform(y_valid)
 

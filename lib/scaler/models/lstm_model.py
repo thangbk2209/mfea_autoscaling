@@ -56,5 +56,5 @@ class LstmPredictor(BaseModel):
                                 dropout=0, recurrent_dropout=self.dropout,
                                 kernel_initializer='he_normal', input_shape=self.input_shape,
                                 return_sequences=(i != len(self.num_units) - 1)))
-        self.model.add(Dense(1))
+        self.model.add(Dense(1, activation='sigmoid'))
         self.model.compile(optimizer=self.optimizer, loss='mse')
