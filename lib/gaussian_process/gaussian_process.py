@@ -190,8 +190,9 @@ class GaussProcess:
             #print('>x1={},c f()={}, actual={}'.format(x[1], est1, actual))
 
             # add the data to the dataset
-            self.x = vstack((self.x, [x]))
-            self.y = vstack((self.y, [actual]))
+            if not math.isnan(actual):
+                self.x = vstack((self.x, [x]))
+                self.y = vstack((self.y, [actual]))
             self.actual.append(actual)
             # update the gausian model
             self.gaussian_process_model.fit(self.x, self.y)
