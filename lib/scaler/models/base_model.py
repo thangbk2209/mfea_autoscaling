@@ -58,7 +58,7 @@ class BaseModel:
         except Exception as ex:
             print('[ERROR] Can not plot learning curves of the model')
 
-    def fit(self, x, y, validation_split=0, batch_size=1, epochs=1, early_stopping=True, patience=20):
+    def fit(self, x, y, validation_split=0, batch_size=1, epochs=10, early_stopping=True, patience=20):
         callbacks = []
 
         if early_stopping:
@@ -66,15 +66,12 @@ class BaseModel:
             model_checkpoint = ModelCheckpoint(f'{self.model_path}.h5', monitor='val_loss', mode='min',
                                                verbose=Config.VERBOSE, save_best_only=True)
             callbacks = [es, model_checkpoint]
-        
+
         self.history = self.model.fit(
             x, y, validation_split=validation_split, epochs=epochs, batch_size=batch_size, verbose=Config.VERBOSE,
             shuffle=False, callbacks=callbacks)
-        try:
+        if os.path.exists(f'{self.model_path}.h5'):
             self.model.load_weights(f'{self.model_path}.h5')
-            os.remove(f'{self.model_path}.h5')
-        except:
-            pass
 
     def predict(self, x):
         return self.model.predict(x)
@@ -82,12 +79,5 @@ class BaseModel:
     def evaluate(self, x, y, data_normalizer):
         pred = self.predict(x)
         pred = data_normalizer.invert_tranform(pred)
-        print(evaluate(y, pred, ('mae', 'rmse', 'mse', 'mape', 'smape')))
-        # self.load_model('model_best.h5')
-        # best_pred = self.predict(x)
-        # best_pred = data_normalizer.invert_tranform(best_pred)
-        # plt.plot(pred, label='pred')
-        # plt.plot(best_pred, label='best pred')
-        # plt.legend()
-        # plt.show()
-        return evaluate(y, best_pred, ('mae', 'rmse', 'mse', 'mape', 'smape'))
+
+        return evaluate(y, pred, ('mae', 'rmse', 'mse', 'mape', 'smape'))

@@ -2,16 +2,14 @@
 import math
 from math import pi
 from operator import indexOf
+
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from numpy import arange
 from numpy import vstack
-from numpy import argmax,argmin
-from mpl_toolkits.mplot3d import Axes3D
-from lib.includes.utility import *
-from config import *
+from numpy import argmax, argmin
 from numpy import asarray
 from numpy.core.fromnumeric import argmin
-from numpy.random import normal
 from numpy.random import random
 from scipy.stats import norm
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -21,18 +19,52 @@ from warnings import catch_warnings
 from warnings import simplefilter
 from matplotlib import pyplot 
 from skopt import gp_minimize
+
 from lib.includes.utility import *
 from config import *
-#k = GPflow.kernels.Matern32(1, variance=1, lengthscales=1.2)
-# objective function
+
 class GaussProcess:
 
-    def __init__(self,objective):
-        self.objective=objective
-        self.X=[]
-        self.y=[]
-        self.name=[]
+    def __init__(self, objective_function):
+        self.objective_function = objective_function
+        self.x = []  # Chromosome that has fitness value
+        self.y = []  # Fit value of chromosome in X
+        self.name = []
+        self.actual=[]
+        self.cloud_metrics = {
+                'train_data_type': 'cpu',
+                'predict_data': 'cpu'
+            }
+        self.alpha = Config.ALPHA
         self._parse_domain()
+        self.population_size = Config.POPULATION_SIZE
+        self.max_iteration = Config.MAX_ITER
+
+    def gen_sample(self):
+        x_sample = []
+        for index, value in enumerate(self.type_attr):
+            if value == 'discrete':
+                _x = np.random.choice(self.range_val[index])
+                x_sample.append(_x)
+                #x_sample_memory.append(_x)
+
+            if value == 'continuous':
+                # _old_x = self.min_val + (self.max_val - self.min_val) * np.random.rand(len(self.type_attr))
+                # _x = np.round(np.random.rand() * (self.max_val[index] - self.min_val[index]) + self.min_val[index], 5)
+                _x = np.random.rand() * (self.max_val[index] - self.min_val[index]) + self.min_val[index]
+                x_sample.append(_x)
+                #x_sample_memory.append(_x)
+
+            if self.name[index] in ["sliding","network_size","layer_size"]:
+                if value == 'discrete':
+                    _x = np.random.choice(self.range_val[index])
+                    x_sample.append(_x)
+                if value == 'continuous':
+                # _old_x = self.min_val + (self.max_val - self.min_val) * np.random.rand(len(self.type_attr))
+                # _x = np.round(np.random.rand() * (self.max_val[index] - self.min_val[index]) + self.min_val[index], 5)
+                    _x = np.random.rand() * (self.max_val[index] - self.min_val[index]) + self.min_val[index]
+                    x_sample.append(_x)
+        return x_sample
 
     def _parse_domain(self):
         domain = Config.LSTM_CONFIG['domain']
@@ -51,15 +83,6 @@ class GaussProcess:
                 min_val.append(attr['domain'][0])
                 max_val.append(attr['domain'][1])
             range_val.append(attr['domain'])
-        Xsample=[]
-        for index,value in enumerate(type_attr):
-            
-            if value == 'discrete':
-                X_ = np.random.choice(range_val[index])
-                Xsample.append(X_)
-            if value == 'continuous':
-                X_ = np.round(np.random.rand()*(max_val[index]-min_val[index])+min_val[index],5)
-                Xsample.append(X_)
 
         self.name = names
         
@@ -67,88 +90,120 @@ class GaussProcess:
         self.max_val = np.array(max_val)
         self.min_val = np.array(min_val)
         self.range_val = range_val
-        #print(Xsample)
-        self.X.append(Xsample)
-        #print(self.decode_position(Xsample))
-        self.y.append(self.objective(self.decode_position(Xsample))[0])
 
-    def decode_position(self, position):
+        x_sample = self.gen_sample()
+        #print(x_sample)
+        self.x.append(x_sample)
+        
+        x_cpu,x_mem=self.split_sample(x_sample)
+        # @TODO thangbk2209 need to add fitness_type and cloud_metrics into objective_function
+        self.y.append(self.alpha*self.objective_function(self.decode_sample(x_cpu),cloud_metrics=self.cloud_metrics)[0]+\
+            (1-self.alpha)*self.objective_function(self.decode_sample(x_mem))[0])
+
+    def split_sample(self,sample):
+        x_cpu = []
+        x_mem = []
+
+        for i in range(len(sample)):
+            if i not in [2,3,4,5,6,7]:
+                x_cpu.append(sample[i])
+                x_mem.append(sample[i])
+            elif i in [2,4,6]:
+                x_cpu.append(sample[i])
+            else:
+                x_mem.append(sample[i])
+
+        return x_cpu, x_mem
+
+    def decode_sample(self, sample):
         result = {}
-        for i,name in enumerate(self.name):
-            result[name] = position[i]
+        for i, name in enumerate(self.name):
+            if name in ["learning_rate","dropout"]:
+                result[name] = sample[i]
+            else:
+                result[name]=int(sample[i])
         return result
+
     # surrogate or approximation for the objective function
-    def surrogate(self,model, X):
+    def surrogate(self, x):
         # catch any warning generated when making a prediction
         with catch_warnings():
             # ignore generated warnings
-            simplefilter("ignore")
-            return model.predict(X, return_std=True)
+            simplefilter('ignore')
+            return self.gaussian_process_model.predict(x, return_std=True)
 
     # probability of improvement acquisition function
-    def acquisition(self, X, Xsamples, model):
+    def acquisition(self, x, x_samples):
         # calculate the best surrogate score found so far
-        yhat, _ = self.surrogate(model, X)
+        yhat, _ = self.surrogate(x)
         best = min(yhat)
         # calculate mean and stdev via surrogate function
-        mu, std = self.surrogate(model, Xsamples)
-        #print(mu)
+        mu, std = self.surrogate(x_samples)
+
         try:
             mu = mu[:, 0]
         except:
-            mu=mu
+            mu = mu
+
         # calculate the probability of improvement
-        probs = norm.cdf((mu - best) / (std+1E-9))
+        probs = norm.cdf((mu - best) / (std + 1E-9))
         return probs
 
-    def opt_acquisition(self, X, y, model):
+    def opt_acquisition(self, x):
         # random search, generate random samples
 
-        Xsamples = []
-        for j in range(100):
-            Xsample = []
-            for index,value in enumerate(self.type_attr):
-                if value == 'discrete':
-                    X_ = np.random.choice(self.range_val[index])
-                    Xsample.append(X_)
-                if value == 'continuous':
-                    X_ = np.round(np.random.rand()*(self.max_val[index]-self.min_val[index])+self.min_val[index],5)
-                    Xsample.append(X_)
-            Xsamples.append(Xsample)
-        #print(Xsamples)
-
-        #Xsamples = Xsamples.reshape(len(Xsamples),)
+        x_samples = []
+        for j in range(self.population_size):
+            x_sample = self.gen_sample()
+            x_samples.append(x_sample)
+        #print(x[:,0])
+        #print("_____________________________")
+        #print(x_samples[:,0])
         # calculate the acquisition function for each sample
-        scores = self.acquisition(X, Xsamples, model)
-        #print(scores.shape)
-        # locate the index of the largest scores
-        #print(scores)
-        #print(Xsamples)
-        ix = argmin(scores)
-        print(ix)
-        #print(Xsamples[ix])
-        #print(Xsamples[ix])
-        return Xsamples[ix]
+        scores = self.acquisition(x, x_samples)
+        min_sample_idx = argmin(scores)
+        #min_sample_idx2 = argmin(scores)
 
-    def fit(self):
-        model = GaussianProcessRegressor()
-        for i in range(10):
-        # select the next point to sample
-            x = self.opt_acquisition(self.X,self.y, model)
-        # sample the point
-            actual = self.objective(self.decode_position(x))[0]
-        # summarize the finding
-            est, _ = self.surrogate(model, [x])
-            #print(self.X)
-            print('>x1={},x2={}, f()={}, actual={}'.format(x[0],x[1], est, actual))
-        # add the data to the dataset
-            if not math.isnan(actual):
-                self.X = vstack((self.X, [x]))
-                self.y = vstack((self.y, [actual]))
-            else:
-                pass
-        # update the model
-            model.fit(self.X, self.y)
-        ix = argmin(self.y)
-        print('Best Result: x1=%.3f,x2=%3f, y=%.3f' % (self.X[ix][0],self.X[ix][1], self.y[ix]))
-        return self.X[ix]
+        return x_samples[min_sample_idx]
+
+    def optimize(self):
+        self.gaussian_process_model = GaussianProcessRegressor()
+        #self.gaussian_process_model_mem = GaussianProcessRegressor()
+
+
+        for i in range(self.max_iteration):
+
+            # select the next point to sample
+            x = self.opt_acquisition(self.x)
+
+            # sample the point
+            x_cpu, x_mem = self.split_sample(x)
+            actual = self.alpha*self.objective_function(self.decode_sample(x_cpu),cloud_metrics=self.cloud_metrics)[0]\
+                + (1-self.alpha)*self.objective_function(self.decode_sample(x_mem))[0]
+
+            # summarize the finding
+            est, _ = self.surrogate([x])
+            #est1, _1 = self.surrogate([x[0]],type="cpu")
+
+
+            print('>x={}, f()={}, actual={}'.format(x, est, actual))
+            #print('>x1={},c f()={}, actual={}'.format(x[1], est1, actual))
+
+            # add the data to the dataset
+            self.x = vstack((self.x, [x]))
+            self.y = vstack((self.y, [actual]))
+            self.actual.append(actual)
+            # update the gausian model
+            self.gaussian_process_model.fit(self.x, self.y)
+            #self.gaussian_process_model_mem.fit(self.x[:,0], self.y[:,0])
+
+
+        optimal_sample_idx = argmin(self.y)
+        print(f'Best Result: x1={self.x[optimal_sample_idx][0]},x2={self.x[optimal_sample_idx][1]}, y={self.y[optimal_sample_idx]}')
+        
+        files = open("optimization_result.csv","w")
+        files.write("x,y,actual\n")
+        for i in len(self.x):
+            files.write("{},{},{}\n".format(self.x, self.y, self.actual))
+            
+        return self.x[optimal_sample_idx]
