@@ -140,7 +140,7 @@ class ModelTrainer:
 
         if weights is None:
             lstm_predictor.fit(x_train, y_train, validation_split=Config.VALID_SIZE,
-                            batch_size=batch_size, epochs=Config.EPOCHS)
+                            epochs=Config.EPOCHS)
 
             validation_point = int(Config.VALID_SIZE * x_train.shape[0])
             x_valid = x_train[validation_point:]

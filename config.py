@@ -61,7 +61,7 @@ class Config:
 
         MODEL_EXPERIMENT = 'lstm'  # lstm, ann
         FITNESS_TYPE = 'scaler_error'  # validation_error, scaler_error
-        METHOD_OPTIMIZE = 'evolutionary_mfea'  # evolutionary_mfea, bayesian_mfea
+        METHOD_OPTIMIZE = 'bayesian_mfea'  # evolutionary_mfea, bayesian_mfea
         RESULTS_SAVE_PATH = CORE_DATA_DIR + \
             '/{}/{}/'.format(MODEL_EXPERIMENT, FITNESS_TYPE)
 
@@ -82,7 +82,7 @@ class Config:
         ALPHA=0.5
 
     elif ENV == 'experiment':
-DATA_EXPERIMENT = 'google_trace'  # grid, traffic, google_trace
+        DATA_EXPERIMENT = 'google_trace'  # grid, traffic, google_trace
 
         GOOGLE_TRACE_DATA_CONFIG = {
             # 'train_data_type': 'mem',  # cpu_mem, uni_mem, uni_cpu

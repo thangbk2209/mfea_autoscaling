@@ -178,8 +178,8 @@ class GaussProcess:
 
             # sample the point
             x_cpu, x_mem = self.split_sample(x)
-            actual = self.alpha*self.objective_function(self.decode_sample(x_cpu),cloud_metrics=self.cloud_metrics)[0]\
-                + (1-self.alpha)*self.objective_function(self.decode_sample(x_mem))[0]
+            actual = self.alpha*self.objective_function(item=self.decode_sample(x_cpu),cloud_metrics=self.cloud_metrics)[0]\
+                + (1-self.alpha)*self.objective_function(item=self.decode_sample(x_mem))[0]
 
             # summarize the finding
             est, _ = self.surrogate([x])
