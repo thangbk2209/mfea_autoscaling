@@ -6,9 +6,9 @@ from lib.includes.utility import *
 from lib.scaler.models.ann_model import AnnPredictor
 from lib.scaler.models.lstm_model import LstmPredictor
 from lib.evolution_algorithms.genetic_algorithm import GenerticAlgorithmEngine
-from lib.evolution_algorithms.evolutionary_mfea.evolutionary_mfea import EvolutionaryMFEAEngine
 from lib.gaussian_process.gaussian_process import GaussProcess
 from lib.evaluation.fitness_manager import FitnessManager
+from lib.evolution_algorithms.mfea import MFEAEngine
 
 
 class ModelTrainer:
@@ -179,10 +179,10 @@ class ModelTrainer:
             gauss_process = GaussProcess(self.fit_with_lstm)
             gauss_process.optimize()
         elif Config.METHOD_OPTIMIZE == 'evolutionary_mfea':
-            cloud_metrics = {
-                'train_data_type': 'mem',
-                'predict_data': 'mem'
-            }
+            # cloud_metrics = {
+            #     'train_data_type': 'mem',
+            #     'predict_data': 'mem'
+            # }
             item = {
                 'scaler': 1,
                 'sliding': 4,
@@ -194,12 +194,12 @@ class ModelTrainer:
                 'dropout': 0.5,
                 'learning_rate': 3e-4
             }
-            lstm_predictor = self.build_lstm(item, cloud_metrics, return_data=False)
+            lstm_predictor = self.build_lstm(item, return_data=False)
             lstm_shape = lstm_predictor.get_model_shape()
-            random_weights = get_random_weight(lstm_shape)
-            self.fit_with_lstm(item, weights=random_weights, fitness_type='bayesian_autoscaling')
-            evolutionary_mfea_ng = EvolutionaryMFEAEngine(self.fit_with_lstm)
-            evolutionary_mfea_ng.evolve(Config.MAX_ITER)
+            mfea_engine = MFEAEngine(lstm_shape, self.fit_with_lstm)
+            mfea_engine.evolve()
+            # random_weights = get_random_weight(lstm_shape)
+            # self.fit_with_lstm(item, weights=random_weights, fitness_type='bayesian_autoscaling')
         else:
             print('[ERROR] METHOD_OPTIMIZE is not supported')
 
