@@ -197,6 +197,7 @@ class ModelTrainer:
             lstm_predictor = self.build_lstm(item, return_data=False)
             lstm_shape = lstm_predictor.get_model_shape()
             mfea_engine = MFEAEngine(lstm_shape, self.fit_with_lstm)
+            mfea_engine.evolve()
             # random_weights = get_random_weight(lstm_shape)
             # self.fit_with_lstm(item, weights=random_weights, fitness_type='bayesian_autoscaling')
         else:
