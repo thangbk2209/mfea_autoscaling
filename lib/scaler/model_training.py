@@ -6,6 +6,7 @@ from lib.includes.utility import *
 from lib.scaler.models.ann_model import AnnPredictor
 from lib.scaler.models.lstm_model import LstmPredictor
 from lib.evolution_algorithms.genetic_algorithm import GenerticAlgorithmEngine
+from lib.evolution_algorithms.evolutionary_mfea.evolutionary_mfea import EvolutionaryMFEAEngine
 from lib.gaussian_process.gaussian_process import GaussProcess
 from lib.evaluation.fitness_manager import FitnessManager
 
@@ -197,6 +198,8 @@ class ModelTrainer:
             lstm_shape = lstm_predictor.get_model_shape()
             random_weights = get_random_weight(lstm_shape)
             self.fit_with_lstm(item, weights=random_weights, fitness_type='bayesian_autoscaling')
+            evolutionary_mfea_ng = EvolutionaryMFEAEngine(self.fit_with_lstm)
+            evolutionary_mfea_ng.evolve(Config.MAX_ITER)
         else:
             print('[ERROR] METHOD_OPTIMIZE is not supported')
 
