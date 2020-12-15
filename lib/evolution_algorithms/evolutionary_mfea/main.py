@@ -6,15 +6,16 @@ from data_mfea import DataMFEA
 import numpy as np
         
 Tasks = []
-Tasks.append(Task(dims=3, fnc=sphere1, Lb=-3*np.ones(3), Ub=3*np.ones(3)))
-Tasks.append(Task(dims=2, fnc=sphere2, Lb=-1*np.ones(2), Ub=5*np.ones(2)))
-Tasks.append(Task(dims=3, fnc=sphere3, Lb=-5*np.ones(3), Ub=5*np.ones(3)))
-Tasks.append(Task(dims=3, fnc=sphere3, Lb=-5*np.ones(3), Ub=7*np.ones(3)))
-Tasks.append(Task(dims=2, fnc=beale, Lb=-4.5*np.ones(2), Ub=4.5*np.ones(2)))
-Tasks.append(Task(dims=2, fnc=levi, Lb=-10*np.ones(2), Ub=10*np.ones(2)))
-Tasks.append(Task(dims=2, fnc=schaffer_n4, Lb=-100*np.ones(2), Ub=100*np.ones(2)))
-Tasks.append(Task(dims=20, fnc= sphere4, Lb=-5*np.ones(20), Ub=5*np.ones(20)))
+Tasks.append(Task(model_shape=[[(3,)]], fnc=sphere1, Lb=-3*np.ones(3), Ub=3*np.ones(3)))
+Tasks.append(Task(model_shape=[[(2,)]], fnc=sphere2, Lb=-1*np.ones(2), Ub=5*np.ones(2)))
+Tasks.append(Task(model_shape=[[(3,)]], fnc=sphere3, Lb=-5*np.ones(3), Ub=5*np.ones(3)))
+Tasks.append(Task(model_shape=[[(3,)]], fnc=sphere3, Lb=-5*np.ones(3), Ub=7*np.ones(3)))
+Tasks.append(Task(model_shape=[[(2,)]], fnc=beale, Lb=-4.5*np.ones(2), Ub=4.5*np.ones(2)))
+Tasks.append(Task(model_shape=[[(2,)]], fnc=levi, Lb=-10*np.ones(2), Ub=10*np.ones(2)))
+Tasks.append(Task(model_shape=[[(2,)]], fnc=schaffer_n4, Lb=-100*np.ones(2), Ub=100*np.ones(2)))
+Tasks.append(Task(model_shape=[[(20,)]], fnc= sphere4, Lb=-5*np.ones(20), Ub=5*np.ones(20)))
 # Tasks.append(Task(dims=20, fnc= sphere4, Lb=-30000*np.ones(20), Ub=30000*np.ones(20)))
+
 
 pop = 30
 gen = 200

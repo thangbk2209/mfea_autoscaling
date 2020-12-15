@@ -1,5 +1,6 @@
 import numpy as np
-import fnceval
+from lib.evolution_algorithms.evolutionary_mfea.fnceval import decode
+from lib.evolution_algorithms.evolutionary_mfea.Flatten import unflatten
 
 class Chromosome:
     """
@@ -22,11 +23,11 @@ class Chromosome:
         self.factorial_ranks = np.zeros(no_of_tasks)
         if self.skill_factor == 0:
             for i in range(no_of_tasks):
-                self.factorial_costs[i] = Tasks[i].fnc(fnceval.decode(Tasks[i], self.rnvec))
+                self.factorial_costs[i] = Tasks[i].fitness_evaluate(decode(Tasks[i], self.rnvec))
         else:
             for i in range(no_of_tasks):
                 if self.skill_factor == i: 
-                    self.factorial_costs[i] = Tasks[i].fnc(fnceval.decode(Tasks[i], self.rnvec))
+                    self.factorial_costs[i] = Tasks[i].fitness_evaluate(decode(Tasks[i], self.rnvec))
                     break
         
     def mutate(self, parent, D, sigma):
@@ -41,7 +42,7 @@ class Chromosome:
         self.rnvec[self.rnvec < 0] = 0
         
     def decode(self, Tasks):
-        self.solution = fnceval.decode(Tasks[self.skill_factor], self.rnvec)
+        self.solution =  unflatten(decode(Tasks[self.skill_factor], self.rnvec), Tasks[self.skill_factor].model_shape) 
         
     def __repr__(self):
         return "****************************************" \

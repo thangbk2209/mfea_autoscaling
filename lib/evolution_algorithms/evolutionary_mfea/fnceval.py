@@ -1,4 +1,4 @@
-from Task import Task
+from lib.evolution_algorithms.evolutionary_mfea.Task import Task
 
 def decode(Task, rnvec):
     d = Task.dims
