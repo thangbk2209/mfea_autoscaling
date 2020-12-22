@@ -119,7 +119,7 @@ class GaussProcess:
             else:
                 x_cpu.append(int(sample[i-3]*(self.max_val[i-3]-self.min_val[i-3])))
                 x_mem.append(int(sample[i-3]*(self.max_val[i-3]-self.min_val[i-3])))
-        print(x_cpu,x_mem)
+        #print(x_cpu,x_mem)
         return x_cpu, x_mem
 
     def decode_sample(self, sample):
