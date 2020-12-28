@@ -185,13 +185,13 @@ class ModelTrainer:
             # }
             item1 = {
                 'scaler': 1,
-                'sliding': 4,
+                'sliding': 2,
                 'batch_size': 32,
                 'network_size': 2,
                 'layer_size': 4,
                 'activation': 0,
                 'optimizer': 0,
-                'dropout': 0.5,
+                'dropout': 0.2,
                 'learning_rate': 3e-4
             }
             lstm_predictor1 = self.build_lstm(item1, return_data=False)
@@ -200,11 +200,11 @@ class ModelTrainer:
                 'scaler': 1,
                 'sliding': 4,
                 'batch_size': 32,
-                'network_size': 2,
-                'layer_size': 4,
+                'network_size': 3,
+                'layer_size': 8,
                 'activation': 0,
                 'optimizer': 0,
-                'dropout': 0.5,
+                'dropout': 0.2,
                 'learning_rate': 3e-4
             }
             lstm_predictor2 = self.build_lstm(item2, return_data=False)

@@ -135,7 +135,8 @@ def gen_folder_in_path(path):
     path_component = path.split('/')
     path_infor = ''
     for _path_component in path_component:
-        path_infor += f'/{_path_component}'
+        path_infor += f'{_path_component}'
+        # path_infor += f'/{_path_component}'
         if not os.path.exists(path_infor):
             os.mkdir(path_infor)
 

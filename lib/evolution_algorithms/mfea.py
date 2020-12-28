@@ -10,7 +10,7 @@ class MFEAEngine:
         self.model_shape = model_shape
         self.fitness_function = fitness_function
         self.population_size = Config.POPULATION_SIZE
-        self.iterations = 3
+        self.iterations = 10
         self.MFEAProcess = None
 
     def init_task(self):
