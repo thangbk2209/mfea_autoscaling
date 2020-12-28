@@ -3,6 +3,9 @@ from lib.evolution_algorithms.evolutionary_mfea.Flatten import shape_to_dims
 from lib.evolution_algorithms.evolutionary_mfea.mfea import MFEA
 from lib.evolution_algorithms.evolutionary_mfea.data_mfea import DataMFEA
 from config import *
+import matplotlib.pyplot as plt
+import numpy as np
+import os
 
 class MFEAEngine:
     def __init__(self, model_item=None, model_shape=None, fitness_function=None):
@@ -10,7 +13,7 @@ class MFEAEngine:
         self.model_shape = model_shape
         self.fitness_function = fitness_function
         self.population_size = Config.POPULATION_SIZE
-        self.iterations = 10
+        self.iterations = Config.MAX_ITER
         self.MFEAProcess = None
 
     def init_task(self):
@@ -34,3 +37,21 @@ class MFEAEngine:
 
         print(data_MFEA.EvBestFitness)
         print(data_MFEA.bestInd_data)
+        
+        currentDir = os.path.dirname(__file__)
+        resultDir = os.path.join(currentDir, '../../data/mfea_result/best_fitness.npy')
+        resultDir = os.path.abspath(os.path.realpath(resultDir))
+        print(resultDir)
+        with open(resultDir, mode='wb') as f:
+            np.save(f, data_MFEA.EvBestFitness)
+            
+        with open(resultDir, mode='rb') as f:
+            arr = np.load(f)
+            plt.plot(np.arange(arr.shape[0]), arr[:, 0], label='Task 1')
+            plt.plot(np.arange(arr.shape[0]), arr[:, 1], label='Task 2')
+            plt.title('Loss function of LSTM network with MFEA optimizer')
+            plt.xlabel('Generation')
+            plt.ylabel('Loss value')
+            plt.legend()
+            plt.show()
+        
