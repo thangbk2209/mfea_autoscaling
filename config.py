@@ -64,7 +64,7 @@ class Config:
             '/{}/{}/'.format(MODEL_EXPERIMENT, FITNESS_TYPE)
 
         POPULATION_SIZE = 5
-        MAX_ITER = 200
+        MAX_ITER = 5
         VERBOSE = 2
         LEARNING_RATE = 3e-4
         EPOCHS = 1
