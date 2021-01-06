@@ -23,9 +23,9 @@ class FitnessManager:
         
         # if math.isnan(validation_error):
         #     return 10
-        print('y_valid: ', y_valid)
+        # print('y_valid: ', y_valid)
         y_valid_pred = model.predict(x_valid)
-        print('y_valid_pred: ', y_valid_pred)
+        # print('y_valid_pred: ', y_valid_pred)
         validation_error = evaluate(y_valid_pred, y_valid)['rmse']
         y_valid_pred = data_normalizer.invert_tranform(y_valid_pred)
         y_valid_real = data_normalizer.invert_tranform(y_valid)

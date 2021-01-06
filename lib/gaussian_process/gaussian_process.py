@@ -56,7 +56,7 @@ class GaussProcess:
                 x_sample.append(_x)
                 #x_sample_memory.append(_x)
 
-            if self.name[index] in ["sliding","network_size","layer_size"]:
+            if self.name[index] in ["sliding", "network_size", "layer_size"]:
                 if value == 'discrete':
                     _x = (np.random.choice(self.range_val[index])-self.min_val[index])/(self.max_val[index]-self.min_val[index])
                     x_sample.append(_x)
@@ -96,7 +96,7 @@ class GaussProcess:
         print(x_sample)
         self.x.append(x_sample)
         
-        x_cpu,x_mem=self.split_sample(x_sample)
+        x_cpu, x_mem=self.split_sample(x_sample)
         # @TODO thangbk2209 need to add fitness_type and cloud_metrics into objective_function
         self.y.append(self.alpha*self.objective_function(self.decode_sample(x_cpu),cloud_metrics=self.cloud_metrics)[0]+\
             (1-self.alpha)*self.objective_function(self.decode_sample(x_mem))[0])

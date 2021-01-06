@@ -158,7 +158,7 @@ class ModelTrainer:
             x_valid = x_train[validation_point:]
             y_valid = y_train[validation_point:]
             fitness = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
-            print(fitness)
+            # print(fitness)
             return fitness, lstm_predictor
 
     def train_with_lstm(self):
@@ -183,20 +183,41 @@ class ModelTrainer:
             #     'train_data_type': 'mem',
             #     'predict_data': 'mem'
             # }
-            item = {
+            item1 = {
                 'scaler': 1,
-                'sliding': 4,
+                'sliding': 2,
                 'batch_size': 32,
                 'network_size': 2,
                 'layer_size': 4,
                 'activation': 0,
                 'optimizer': 0,
-                'dropout': 0.5,
+                'dropout': 0.2,
                 'learning_rate': 3e-4
             }
-            lstm_predictor = self.build_lstm(item, return_data=False)
-            lstm_shape = lstm_predictor.get_model_shape()
-            mfea_engine = MFEAEngine(lstm_shape, self.fit_with_lstm)
+            lstm_predictor1 = self.build_lstm(item1, return_data=False)
+            lstm_shape1 = lstm_predictor1.get_model_shape()
+            item2 = {
+                'scaler': 1,
+                'sliding': 4,
+                'batch_size': 32,
+                'network_size': 3,
+                'layer_size': 8,
+                'activation': 0,
+                'optimizer': 0,
+                'dropout': 0.2,
+                'learning_rate': 3e-4
+            }
+            lstm_predictor2 = self.build_lstm(item2, return_data=False)
+            lstm_shape2 = lstm_predictor2.get_model_shape()
+            # lstm_weight = lstm_predictor.get_weights()
+            # print("LSTM weight: ", lstm_weight)
+            # print("LSTM shape: ", lstm_shape)
+            # print("Type of LSTM shape: ", type(lstm_shape))
+            # print("LSTM shape[0]: ", lstm_shape[0])
+            # print("Type of LSTM shape[0]: ", type(lstm_shape[0]))
+            # print("Type of shape[0][0]: ", type(lstm_shape[0][0]))
+            mfea_engine = MFEAEngine([item1, item2], [lstm_shape1, lstm_shape2], self.fit_with_lstm)
+            mfea_engine.evolve()
             # random_weights = get_random_weight(lstm_shape)
             # self.fit_with_lstm(item, weights=random_weights, fitness_type='bayesian_autoscaling')
         else:

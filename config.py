@@ -16,8 +16,6 @@ class Config:
         DATA_EXPERIMENT = 'google_trace'  # grid, traffic, google_trace
 
         GOOGLE_TRACE_DATA_CONFIG = {
-            # 'train_data_type': 'mem',  # cpu_mem, uni_mem, uni_cpu
-            # 'predict_data': 'mem',
             'data_type': 'all_jobs',  # 1_job, all_jobs
             'time_interval': 5,
             'file_data_name': '/input_data/google_trace/{}/{}_mins.csv',
@@ -61,12 +59,12 @@ class Config:
 
         MODEL_EXPERIMENT = 'lstm'  # lstm, ann
         FITNESS_TYPE = 'scaler_error'  # validation_error, scaler_error
-        METHOD_OPTIMIZE = 'bayesian_mfea'  # evolutionary_mfea, bayesian_mfea
+        METHOD_OPTIMIZE = 'evolutionary_mfea'  # evolutionary_mfea, bayesian_mfea
         RESULTS_SAVE_PATH = CORE_DATA_DIR + \
             '/{}/{}/'.format(MODEL_EXPERIMENT, FITNESS_TYPE)
 
-        POPULATION_SIZE = 100
-        MAX_ITER = 100
+        POPULATION_SIZE = 5
+        MAX_ITER = 200
         VERBOSE = 2
         LEARNING_RATE = 3e-4
         EPOCHS = 1
