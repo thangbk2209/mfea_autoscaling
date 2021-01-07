@@ -6,7 +6,7 @@ from lib.includes.utility import *
 from lib.scaler.models.ann_model import AnnPredictor
 from lib.scaler.models.lstm_model import LstmPredictor
 from lib.evolution_algorithms.genetic_algorithm import GenerticAlgorithmEngine
-from lib.gaussian_process.gaussian_process import GaussProcess
+from lib.gaussian_process.gaussian_process import GaussProcess, SingleGaussProcess
 from lib.evaluation.fitness_manager import FitnessManager
 from lib.evolution_algorithms.mfea import MFEAEngine
 
@@ -177,6 +177,9 @@ class ModelTrainer:
         # genetic_algorithm_ng.evolve(Config.MAX_ITER)
         if Config.METHOD_OPTIMIZE == 'bayesian_mfea':
             gauss_process = GaussProcess(self.fit_with_lstm)
+            gauss_process.optimize()
+        if Config.METHOD_OPTIMIZE == 'bayesian_single_task':
+            gauss_process = SingleGaussProcess(self.fit_with_lstm)
             gauss_process.optimize()
         elif Config.METHOD_OPTIMIZE == 'evolutionary_mfea':
             # cloud_metrics = {
