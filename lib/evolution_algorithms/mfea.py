@@ -18,8 +18,19 @@ class MFEAEngine:
 
     def init_task(self):
         self.tasks = []
-        self.tasks.append(Task('mem', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))
-        self.tasks.append(Task('cpu', item=self.model_item[1], fnc=self.fitness_function, model_shape=self.model_shape[1]))
+        if Config.RUN_OPTION == 1:
+            self.tasks.append(Task('mem', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))
+        elif Config.RUN_OPTION == 2:
+            self.tasks.append(Task('cpu', item=self.model_item[1], fnc=self.fitness_function, model_shape=self.model_shape[1]))
+        elif Config.RUN_OPTION == 11:
+            self.tasks.append(Task('mem', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))
+            self.tasks.append(Task('mem', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))
+        elif Config.RUN_OPTION == 22:
+            self.tasks.append(Task('cpu', item=self.model_item[1], fnc=self.fitness_function, model_shape=self.model_shape[1]))
+            self.tasks.append(Task('cpu', item=self.model_item[1], fnc=self.fitness_function, model_shape=self.model_shape[1]))
+        elif Config.RUN_OPTION == 12:
+            self.tasks.append(Task('mem', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))
+            self.tasks.append(Task('cpu', item=self.model_item[1], fnc=self.fitness_function, model_shape=self.model_shape[1]))
 
     def create_population(self):
         self.MFEAProcess = MFEA(Tasks=self.tasks,
@@ -47,8 +58,24 @@ class MFEAEngine:
             
         with open(resultDir, mode='rb') as f:
             arr = np.load(f)
-            plt.plot(np.arange(arr.shape[0]), arr[:, 0], label='Task 1')
-            plt.plot(np.arange(arr.shape[0]), arr[:, 1], label='Task 2')
+            if Config.RUN_OPTION > 10:
+                if Config.RUN_OPTION // 10 == 1:
+                    lb1 = 'mem1'
+                else:
+                    lb1 = 'cpu1'
+                    
+                if Config.RUN_OPTION % 10 == 1:
+                    lb2 = 'mem2'
+                else:
+                    lb2 = 'cpu2'
+                plt.plot(np.arange(arr.shape[0]), arr[:, 0], label=lb1)
+                plt.plot(np.arange(arr.shape[0]), arr[:, 1], label=lb2)
+            else: 
+                if Config.RUN_OPTION % 10 == 1:
+                    lb = 'mem'
+                else:
+                    lb = 'cpu'
+                plt.plot(np.arange(arr.shape[0]), arr[:, 0], label=lb)
             plt.title('Loss function of LSTM network with MFEA optimizer')
             plt.xlabel('Generation')
             plt.ylabel('Loss value')
