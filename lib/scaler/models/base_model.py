@@ -54,7 +54,6 @@ class BaseModel:
         return results
 
     def get_weights(self):
-        print('=== get list layers of model ===')
         weights = []
         for _layer in self.model.layers:
             _weights = []
