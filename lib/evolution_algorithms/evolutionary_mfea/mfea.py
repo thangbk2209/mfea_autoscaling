@@ -98,7 +98,7 @@ class MFEA:
                     child[count+1].mutate(self.population[p2], self.D_multitask, sigma)
                     child[count+1].skill_factor = self.population[p2].skill_factor
                 count += 2
-        
+
             for i in range(self.pop):
                 child[i].evaluate(self.Tasks, self.no_of_tasks)
             intpopulation = np.concatenate((self.population, child))
