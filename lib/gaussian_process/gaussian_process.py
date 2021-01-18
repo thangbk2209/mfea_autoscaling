@@ -18,7 +18,7 @@ from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel, Consta
 from warnings import catch_warnings
 from warnings import simplefilter
 from matplotlib import pyplot 
-from skopt import gp_minimize
+#from skopt import gp_minimize
 
 from lib.includes.utility import *
 from config import *
@@ -44,7 +44,6 @@ from sklearn.gaussian_process.kernels import ExpSineSquared, WhiteKernel, Consta
 from warnings import catch_warnings
 from warnings import simplefilter
 from matplotlib import pyplot 
-from skopt import gp_minimize
 from lib.includes.utility import *
 from config import *
 
