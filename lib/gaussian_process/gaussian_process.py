@@ -177,7 +177,6 @@ class GaussProcess:
         self.gaussian_process_model = GaussianProcessRegressor()
         #self.gaussian_process_model_mem = GaussianProcessRegressor()
 
-
         for i in range(self.max_iteration):
 
             # select the next point to sample

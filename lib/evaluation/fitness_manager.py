@@ -45,7 +45,7 @@ class FitnessManager:
             if y_valid_real[i][0] > upper_valid_scale_value[i][0] or y_valid_real[i][0] < lower_valid_scaler_value[i][0]:
                 quality_of_service_error += 1 / upper_valid_scale_value.shape[0]
 
-        return self.alpha * scaling_error + (1-self.alpha * quality_of_service_error)
+        return self.alpha * scaling_error + (1-self.alpha * quality_of_service_error), validation_error
 
     def evaluate(self, model=None, data_normalizer=None, x_valid=None, y_valid=None):
 

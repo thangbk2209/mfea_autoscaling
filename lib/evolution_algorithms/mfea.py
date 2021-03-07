@@ -35,8 +35,8 @@ class MFEAEngine:
         data_MFEA = self.MFEAProcess.execute()
         [i.decode(self.tasks) for i in data_MFEA.bestInd_data]
 
+        print('=== data_MFEA.EvBestFitness ===')
         print(data_MFEA.EvBestFitness)
-        print(data_MFEA.bestInd_data)
         
         currentDir = os.path.dirname(__file__)
         resultDir = os.path.join(currentDir, '../../data/mfea_result/best_fitness.npy')

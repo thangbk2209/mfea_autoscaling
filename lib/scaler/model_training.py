@@ -1,4 +1,7 @@
 import math
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 from config import *
 from lib.scaler.preprocessing_data.data_preprocessor import DataPreprocessor
@@ -40,7 +43,7 @@ class ModelTrainer:
         model_name = create_name(input_shape=input_shape, output_shape=output_shape, batch_size=batch_size,
                                  num_units=num_units, activation=activation, optimizer=optimizer, dropout=dropout,
                                  learning_rate=learning_rate)
-
+        
         folder_path = f'{self.results_save_path}models'
         gen_folder_in_path(folder_path)
         model_path = f'{folder_path}/{model_name}'
@@ -109,8 +112,10 @@ class ModelTrainer:
         model_name = create_name(input_shape=input_shape, output_shape=output_shape, batch_size=batch_size,
                                  num_units=num_units, activation=activation, optimizer=optimizer, dropout=dropout,
                                  learning_rate=learning_rate)
+        
+        predict_metric = cloud_metrics['predict_data']
+        folder_path = f'{self.results_save_path}/{predict_metric}/models'
 
-        folder_path = f'{self.results_save_path}models'
         gen_folder_in_path(folder_path)
         model_path = f'{folder_path}/{model_name}'
 
@@ -146,7 +151,34 @@ class ModelTrainer:
             validation_point = int(Config.VALID_SIZE * x_train.shape[0])
             x_valid = x_train[validation_point:]
             y_valid = y_train[validation_point:]
-            fitness = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
+            fitness, validation_error = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
+
+            predict_metric = cloud_metrics['predict_data']
+            best_folder_path = f'{self.results_save_path}/{predict_metric}/best_models'
+
+            model_name = lstm_predictor.model_path.split('/')[-1]
+            best_model_path = f'{best_folder_path}/{model_name}'
+            gen_folder_in_path(best_model_path)
+            lstm_predictor.save_model(best_model_path)
+            
+            best_result_path = f'{best_folder_path}/results'
+            gen_folder_in_path(best_result_path)
+
+            y_predict = lstm_predictor.predict(x_test)
+            y_predict = data_normalizer.invert_tranform(y_predict)
+            scaling_gap = np.full(y_predict.shape, validation_error)
+            upper_y_predict = np.add(y_predict, scaling_gap)
+
+            real_predict = np.concatenate((y_predict, y_test), axis=1)
+            real_predict = np.concatenate((real_predict, upper_y_predict), axis=1)
+            prediction_df = pd.DataFrame(real_predict)
+            prediction_df.to_csv(f'{best_result_path}/prediction.csv', index=False, header=None)
+
+            error = lstm_predictor.evaluate(x_test, y_test, data_normalizer)  
+
+            errors = np.array([error['mae'], error['rmse'], error['mse'], error['mape'], error['smape'], fitness, validation_error])
+            errors_df = pd.DataFrame(errors)
+            errors_df.to_csv(f'{best_result_path}/errors.csv',index=False, header=None)
 
             return fitness, lstm_predictor
         else:
@@ -157,46 +189,59 @@ class ModelTrainer:
             validation_point = int(Config.VALID_SIZE * x_train.shape[0])
             x_valid = x_train[validation_point:]
             y_valid = y_train[validation_point:]
-            fitness = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
+            fitness, validation_error = self.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
             # print(fitness)
             return fitness, lstm_predictor
 
     def train_with_lstm(self):
-        # item = {
-        #     'scaler': 'min_max_scaler',
-        #     'sliding': 4,
-        #     'batch_size': 32,
-        #     'num_units': [4, 2],
-        #     'activation': 'tanh',
-        #     'optimizer': 'adam',
-        #     'dropout': 0.5,
-        #     'learning_rate': 3e-4
-        # }
-        # self.fit_with_lstm(item, fitness_type='bayesian_autoscaling')
-        # genetic_algorithm_ng = GenerticAlgorithmEngine(self.fit_with_lstm)
-        # genetic_algorithm_ng.evolve(Config.MAX_ITER)
         if Config.METHOD_OPTIMIZE == 'bayesian_mfea':
             gauss_process = GaussProcess(self.fit_with_lstm)
             gauss_process.optimize()
         elif Config.METHOD_OPTIMIZE == 'evolutionary_mfea':
-            # cloud_metrics = {
-            #     'train_data_type': 'mem',
-            #     'predict_data': 'mem'
-            # }
-            item1 = {
+            item_mem = {
                 'scaler': 1,
                 'sliding': 2,
-                'batch_size': 32,
+                'batch_size': 64,
                 'network_size': 2,
                 'layer_size': 4,
                 'activation': 0,
                 'optimizer': 0,
-                'dropout': 0.2,
+                'dropout': 0.1,
                 'learning_rate': 3e-4
             }
-            lstm_predictor1 = self.build_lstm(item1, return_data=False)
-            lstm_shape1 = lstm_predictor1.get_model_shape()
-            item2 = {
+            lstm_predictor_mem = self.build_lstm(item_mem, return_data=False)
+            lstm_shape_mem = lstm_predictor_mem.get_model_shape()
+            item_cpu = {
+                'scaler': 1,
+                'sliding': 4,
+                'batch_size': 64,
+                'network_size': 3,
+                'layer_size': 8,
+                'activation': 0,
+                'optimizer': 0,
+                'dropout': 0.1,
+                'learning_rate': 3e-4
+            }
+            lstm_predictor_cpu = self.build_lstm(item_cpu, return_data=False)
+            lstm_shape_cpu = lstm_predictor_cpu.get_model_shape()
+
+            mfea_engine = MFEAEngine([item_mem, item_cpu], [lstm_shape_mem, lstm_shape_cpu], self.fit_with_lstm)
+            mfea_engine.evolve()
+            # random_weights = get_random_weight(lstm_shape)
+            # self.fit_with_lstm(item, weights=random_weights, fitness_type='bayesian_autoscaling')
+        elif Config.METHOD_OPTIMIZE == 'ga_hyperparameter':
+            genetic_algorithm_ng = GenerticAlgorithmEngine(fitness_function=self.fit_with_lstm, objective='hyperparameter')
+            genetic_algorithm_ng.evolve(Config.MAX_ITER)
+        elif Config.METHOD_OPTIMIZE == 'ga_weight':
+            genetic_algorithm_ng = GenerticAlgorithmEngine(fitness_function=self.fit_with_lstm, objective='weight')
+            genetic_algorithm_ng.evolve(Config.MAX_ITER)
+        elif Config.METHOD_OPTIMIZE == 'backpropagation':
+            # Optimize using backpropagation
+            cpu_cloud_metrics = {
+                'train_data_type': 'cpu',
+                'predict_data': 'cpu'
+            }
+            item_cpu = {
                 'scaler': 1,
                 'sliding': 4,
                 'batch_size': 32,
@@ -207,21 +252,29 @@ class ModelTrainer:
                 'dropout': 0.2,
                 'learning_rate': 3e-4
             }
-            lstm_predictor2 = self.build_lstm(item2, return_data=False)
-            lstm_shape2 = lstm_predictor2.get_model_shape()
-            # lstm_weight = lstm_predictor.get_weights()
-            # print("LSTM weight: ", lstm_weight)
-            # print("LSTM shape: ", lstm_shape)
-            # print("Type of LSTM shape: ", type(lstm_shape))
-            # print("LSTM shape[0]: ", lstm_shape[0])
-            # print("Type of LSTM shape[0]: ", type(lstm_shape[0]))
-            # print("Type of shape[0][0]: ", type(lstm_shape[0][0]))
-            mfea_engine = MFEAEngine([item1, item2], [lstm_shape1, lstm_shape2], self.fit_with_lstm)
-            mfea_engine.evolve()
-            # random_weights = get_random_weight(lstm_shape)
-            # self.fit_with_lstm(item, weights=random_weights, fitness_type='bayesian_autoscaling')
+            fitness_cpu, lstm_predictor_cpu = self.fit_with_lstm(item_cpu, cloud_metrics=cpu_cloud_metrics, fitness_type='scaler_error')
+
+            mem_cloud_metrics = {
+                'train_data_type': 'mem',
+                'predict_data': 'mem'
+            }
+            item_mem = {
+                'scaler': 1,
+                'sliding': 2,
+                'batch_size': 32,
+                'network_size': 2,
+                'layer_size': 4,
+                'activation': 0,
+                'optimizer': 0,
+                'dropout': 0.2,
+                'learning_rate': 3e-4
+            }
+            fitness_mem, lstm_predictor_mem = self.fit_with_lstm(item_mem, cloud_metrics=mem_cloud_metrics, fitness_type='scaler_error')
+
+            print(' === fitness_mem, lstm_predictor_mem ===')
+            print(fitness_mem, lstm_predictor_mem)
         else:
-            print('[ERROR] METHOD_OPTIMIZE is not supported')
+            print('>>> We do not support this method <<<')
 
     def train(self):
         print('[3] >>> Start choosing model and experiment')
