@@ -1,7 +1,10 @@
 from lib.evolution_algorithms.evolutionary_mfea.Chromosome import Chromosome
 from lib.evolution_algorithms.evolutionary_mfea.data_mfea import DataMFEA
+from config import *
 import numpy as np
 import random
+import pickle
+import os
 
 class MFEA:
     """
@@ -133,6 +136,32 @@ class MFEA:
             print("Information of best individual:")
             print(decoded_bestInd_data)
             print("**********************************************************")
+            
+            currentDir = os.path.dirname(__file__)
+            resultDir = os.path.join(currentDir, '../../../data/mfea_result/gen_{}'.format(generation))
+            resultDir = os.path.abspath(os.path.realpath(resultDir))
+            os.mkdir(resultDir)
+            resultDir1 = os.path.join(currentDir, '../../../data/mfea_result/gen_{}/mem'.format(generation))
+            resultDir1 = os.path.abspath(os.path.realpath(resultDir1))
+            resultDir2 = os.path.join(currentDir, '../../../data/mfea_result/gen_{}/cpu'.format(generation))
+            resultDir2 = os.path.abspath(os.path.realpath(resultDir2))
+            
+            if Config.RUN_OPTION == 12:
+                with open(resultDir1, 'wb') as fp:
+                    pickle.dump(decoded_bestInd_data[0], fp)
+                with open(resultDir2, 'wb') as fp:
+                    pickle.dump(decoded_bestInd_data[1], fp)
+            elif Config.RUN_OPTION == 1:
+                with open(resultDir1, 'wb') as fp:
+                    pickle.dump(decoded_bestInd_data[0], fp)
+            elif Config.RUN_OPTION == 2:
+                with open(resultDir2, 'wb') as fp:
+                    pickle.dump(decoded_bestInd_data[0], fp)
+                
+            # load lai du lieu
+            # with open(resultDir1, 'rb') as fp:
+            #     decoded_bestInd_data[0] = pickle.load(fp)
+
             
         data_MFEA = DataMFEA(self.EvBestFitness, self.bestInd_data)
         return data_MFEA
