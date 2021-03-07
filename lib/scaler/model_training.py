@@ -233,8 +233,42 @@ class ModelTrainer:
             genetic_algorithm_ng = GenerticAlgorithmEngine(fitness_function=self.fit_with_lstm, objective='hyperparameter')
             genetic_algorithm_ng.evolve(Config.MAX_ITER)
         elif Config.METHOD_OPTIMIZE == 'ga_weight':
-            genetic_algorithm_ng = GenerticAlgorithmEngine(fitness_function=self.fit_with_lstm, objective='weight')
-            genetic_algorithm_ng.evolve(Config.MAX_ITER)
+            # genetic_algorithm_ng = GenerticAlgorithmEngine(fitness_function=self.fit_with_lstm, objective='weight')
+            # genetic_algorithm_ng.evolve(Config.MAX_ITER)
+            if Config.RUN_OPTION == 1:
+                item_mem = {
+                    'scaler': 1,
+                    'sliding': 2,
+                    'batch_size': 64,
+                    'network_size': 2,
+                    'layer_size': 4,
+                    'activation': 0,
+                    'optimizer': 0,
+                    'dropout': 0.1,
+                    'learning_rate': 3e-4
+                }
+                lstm_predictor_mem = self.build_lstm(item_mem, return_data=False)
+                lstm_shape_mem = lstm_predictor_mem.get_model_shape()
+
+                mfea_engine = MFEAEngine([item_mem], [lstm_shape_mem], self.fit_with_lstm)
+                mfea_engine.evolve()
+            elif Config.RUN_OPTION == 2:
+                item_cpu = {
+                    'scaler': 1,
+                    'sliding': 4,
+                    'batch_size': 64,
+                    'network_size': 3,
+                    'layer_size': 8,
+                    'activation': 0,
+                    'optimizer': 0,
+                    'dropout': 0.1,
+                    'learning_rate': 3e-4
+                }
+                lstm_predictor_cpu = self.build_lstm(item_cpu, return_data=False)
+                lstm_shape_cpu = lstm_predictor_cpu.get_model_shape()
+
+                mfea_engine = MFEAEngine([item_cpu], [lstm_shape_cpu], self.fit_with_lstm)
+                mfea_engine.evolve()
         elif Config.METHOD_OPTIMIZE == 'backpropagation':
             # Optimize using backpropagation
             cpu_cloud_metrics = {
