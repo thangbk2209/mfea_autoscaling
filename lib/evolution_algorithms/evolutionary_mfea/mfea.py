@@ -138,6 +138,9 @@ class MFEA:
             print("**********************************************************")
             
             currentDir = os.path.dirname(__file__)
+            resultDir = os.path.join(currentDir, '../../../data/mfea_result/gen_{}'.format(generation))
+            resultDir = os.path.abspath(os.path.realpath(resultDir))
+            os.mkdir(resultDir)
             resultDir1 = os.path.join(currentDir, '../../../data/mfea_result/gen_{}/mem'.format(generation))
             resultDir1 = os.path.abspath(os.path.realpath(resultDir1))
             resultDir2 = os.path.join(currentDir, '../../../data/mfea_result/gen_{}/cpu'.format(generation))
