@@ -21,7 +21,7 @@ class MFEAEngine:
         if Config.RUN_OPTION == 1:
             self.tasks.append(Task('mem', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))
         elif Config.RUN_OPTION == 2:
-            self.tasks.append(Task('cpu', item=self.model_item[1], fnc=self.fitness_function, model_shape=self.model_shape[1]))
+            self.tasks.append(Task('cpu', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))
         elif Config.RUN_OPTION == 11:
             self.tasks.append(Task('mem', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))
             self.tasks.append(Task('mem', item=self.model_item[0], fnc=self.fitness_function, model_shape=self.model_shape[0]))

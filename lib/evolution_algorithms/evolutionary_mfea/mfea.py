@@ -134,29 +134,49 @@ class MFEA:
             [i.decode(self.Tasks) for i in decoded_bestInd_data]
             print("Fitness for the tasks: ", self.EvBestFitness[generation])
             print("Information of best individual:")
-            print(decoded_bestInd_data)
+            # print(decoded_bestInd_data)
             print("**********************************************************")
             
             currentDir = os.path.dirname(__file__)
-            resultDir = os.path.join(currentDir, '../../../data/mfea_result/gen_{}'.format(generation))
-            resultDir = os.path.abspath(os.path.realpath(resultDir))
-            os.mkdir(resultDir)
-            resultDir1 = os.path.join(currentDir, '../../../data/mfea_result/gen_{}/mem'.format(generation))
-            resultDir1 = os.path.abspath(os.path.realpath(resultDir1))
-            resultDir2 = os.path.join(currentDir, '../../../data/mfea_result/gen_{}/cpu'.format(generation))
-            resultDir2 = os.path.abspath(os.path.realpath(resultDir2))
+            # resultDir = os.path.join(currentDir, '../../../data/mfea_result/mem_cpu/gen_{}'.format(generation))
+            # resultDir = os.path.abspath(os.path.realpath(resultDir))
+            # os.mkdir(resultDir)
+            # resultDir1 = os.path.join(currentDir, '../../../data/mfea_result/gen_{}/mem'.format(generation))
+            # resultDir1 = os.path.abspath(os.path.realpath(resultDir1))
+            # resultDir2 = os.path.join(currentDir, '../../../data/mfea_result/gen_{}/cpu'.format(generation))
+            # resultDir2 = os.path.abspath(os.path.realpath(resultDir2))
             
             if Config.RUN_OPTION == 12:
+                resultDir = os.path.join(currentDir, '../../../data/mfea_result/mem_cpu/gen_{}'.format(generation))
+                resultDir = os.path.abspath(os.path.realpath(resultDir))
+                if not os.path.exists(resultDir):
+                    os.mkdir(resultDir)
+                resultDir1 = os.path.join(currentDir, '../../../data/mfea_result/mem_cpu/gen_{}/mem'.format(generation))
+                resultDir1 = os.path.abspath(os.path.realpath(resultDir1))
+                resultDir2 = os.path.join(currentDir, '../../../data/mfea_result/mem_cpu/gen_{}/cpu'.format(generation))
+                resultDir2 = os.path.abspath(os.path.realpath(resultDir2))
                 with open(resultDir1, 'wb') as fp:
-                    pickle.dump(decoded_bestInd_data[0], fp)
+                    pickle.dump(decoded_bestInd_data[0].solution, fp)
                 with open(resultDir2, 'wb') as fp:
-                    pickle.dump(decoded_bestInd_data[1], fp)
+                    pickle.dump(decoded_bestInd_data[1].solution, fp)
             elif Config.RUN_OPTION == 1:
+                resultDir = os.path.join(currentDir, '../../../data/mfea_result/mem/gen_{}'.format(generation))
+                resultDir = os.path.abspath(os.path.realpath(resultDir))
+                if not os.path.exists(resultDir):
+                    os.mkdir(resultDir)
+                resultDir1 = os.path.join(currentDir, '../../../data/mfea_result/mem/gen_{}/mem'.format(generation))
+                resultDir1 = os.path.abspath(os.path.realpath(resultDir1))
                 with open(resultDir1, 'wb') as fp:
-                    pickle.dump(decoded_bestInd_data[0], fp)
+                    pickle.dump(decoded_bestInd_data[0].solution, fp)
             elif Config.RUN_OPTION == 2:
-                with open(resultDir2, 'wb') as fp:
-                    pickle.dump(decoded_bestInd_data[0], fp)
+                resultDir = os.path.join(currentDir, '../../../data/mfea_result/cpu/gen_{}'.format(generation))
+                resultDir = os.path.abspath(os.path.realpath(resultDir))
+                if not os.path.exists(resultDir):
+                    os.mkdir(resultDir)
+                resultDir1 = os.path.join(currentDir, '../../../data/mfea_result/cpu/gen_{}/cpu'.format(generation))
+                resultDir1 = os.path.abspath(os.path.realpath(resultDir1))
+                with open(resultDir1, 'wb') as fp:
+                    pickle.dump(decoded_bestInd_data[0].solution, fp)
                 
             # load lai du lieu
             # with open(resultDir1, 'rb') as fp:

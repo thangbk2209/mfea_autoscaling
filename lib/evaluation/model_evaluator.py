@@ -1,3 +1,4 @@
+import pickle
 import numpy as np
 import pandas as pd
 
@@ -18,16 +19,16 @@ class ModelEvaluator:
         y_valid = y_train[validation_point:]
         fitness, validation_error = self.model_trainer.fitness_manager.evaluate(predictor, data_normalizer, x_valid, y_valid)
 
-        predict_metric = cloud_metrics['predict_data']
-        best_folder_path = f'{Config.RESULTS_SAVE_PATH}/{predict_metric}/best_models'
+        # predict_metric = cloud_metrics['predict_data']
+        # best_folder_path = f'{Config.RESULTS_SAVE_PATH}/{predict_metric}/best_models'
 
-        model_name = predictor.model_path.split('/')[-1]
-        best_model_path = f'{best_folder_path}/{model_name}'
-        gen_folder_in_path(best_model_path)
-        predictor.save_model(best_model_path)
+        # model_name = predictor.model_path.split('/')[-1]
+        # best_model_path = f'{best_folder_path}/{model_name}'
+        # gen_folder_in_path(best_model_path)
+        # predictor.save_model(best_model_path)
         
-        best_result_path = f'{best_folder_path}/results'
-        gen_folder_in_path(best_result_path)
+        # best_result_path = f'{best_folder_path}/results'
+        # gen_folder_in_path(best_result_path)
 
         y_predict = predictor.predict(x_test)
         y_predict = data_normalizer.invert_tranform(y_predict)
@@ -37,13 +38,14 @@ class ModelEvaluator:
         real_predict = np.concatenate((y_predict, y_test), axis=1)
         real_predict = np.concatenate((real_predict, upper_y_predict), axis=1)
         prediction_df = pd.DataFrame(real_predict)
-        prediction_df.to_csv(f'{best_result_path}/prediction.csv', index=False, header=None)
+        # prediction_df.to_csv(f'{best_result_path}/prediction.csv', index=False, header=None)
 
-        error = lstm_predictor.evaluate(x_test, y_test, data_normalizer)  
+        error = predictor.evaluate(x_test, y_test, data_normalizer)  
 
         errors = np.array([error['mae'], error['rmse'], error['mse'], error['mape'], error['smape'], fitness, validation_error])
-        errors_df = pd.DataFrame(errors)
-        errors_df.to_csv(f'{best_result_path}/errors.csv',index=False, header=None)
+        print(errors)
+        # errors_df = pd.DataFrame(errors)
+        # errors_df.to_csv(f'{best_result_path}/errors.csv',index=False, header=None)
 
     def evaluate_lstm(self, iteration):
         mem_cloud_metrics = {
@@ -84,22 +86,32 @@ class ModelEvaluator:
         if Config.RUN_OPTION == 1:
             # mem model - ga
             # load weight
-            weights_mem = None
+            weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/mem/gen_2/mem'
+            with open(weight_path, 'rb') as fp:
+                weights_mem = pickle.load(fp)
+            print(weights_mem)
+
             lstm_predictor_mem.set_weights(weights_mem)
             self.evaluate(x_train_mem, y_train_mem, x_test_mem, y_test_mem, mem_data_normalizer, lstm_predictor_mem, mem_cloud_metrics)
 
         elif Config.RUN_OPTION == 2:
             # cpu model - ga
-            weights_cpu = None
+            weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/cpu/gen_1/cpu'
+            with open(weight_path, 'rb') as fp:
+                weights_cpu = pickle.load(fp)
             lstm_predictor_cpu.set_weights(weights_cpu)
             self.evaluate(x_train_cpu, y_train_cpu, x_test_cpu, y_test_cpu, cpu_data_normalizer, lstm_predictor_cpu, cpu_cloud_metrics)
         elif Config.RUN_OPTION == 12:
             # mem-cpu model - mfea
-            weights_mem = None
+            mem_weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/mem_cpu/gen_2/mem'
+            with open(mem_weight_path, 'rb') as fp:
+                weights_mem = pickle.load(fp)
             lstm_predictor_mem.set_weights(weights_mem)
             self.evaluate(x_train_mem, y_train_mem, x_test_mem, y_test_mem, mem_data_normalizer, lstm_predictor_mem, mem_cloud_metrics)
             
-            weights_cpu = None
+            cpu_weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/mem_cpu/gen_1/cpu'
+            with open(cpu_weight_path, 'rb') as fp:
+                weights_cpu = pickle.load(fp)
             lstm_predictor_cpu.set_weights(weights_cpu)
             self.evaluate(x_train_cpu, y_train_cpu, x_test_cpu, y_test_cpu, cpu_data_normalizer, lstm_predictor_cpu, cpu_cloud_metrics)
         else:

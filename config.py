@@ -58,7 +58,7 @@ class Config:
 
         MODEL_EXPERIMENT = 'lstm'  # lstm, ann
         FITNESS_TYPE = 'scaler_error'  # validation_error, scaler_error
-        METHOD_OPTIMIZE = 'backpropagation'  # evolutionary_mfea, bayesian_mfea, ga, backpropagation
+        METHOD_OPTIMIZE = 'evolutionary_mfea'  # evolutionary_mfea, bayesian_mfea, ga_weight, backpropagation
         RESULTS_SAVE_PATH = CORE_DATA_DIR + \
             '/{}/{}/{}'.format(MODEL_EXPERIMENT, FITNESS_TYPE, METHOD_OPTIMIZE)
 
@@ -77,7 +77,7 @@ class Config:
         OPTIMIZERS = ['SGD', 'Adam', 'RMSprop', 'Adagrad']
 
         ALPHA=0.5
-        RUN_OPTION = 1 # digit 1: mem, 2: cpu
+        RUN_OPTION = 12 # digit 1: mem, 2: cpu
 
     elif ENV == 'experiment':
         DATA_EXPERIMENT = 'google_trace'  # grid, traffic, google_trace
