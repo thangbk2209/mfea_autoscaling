@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 from lib.scaler.model_training import ModelTrainer
 from config import *
 
@@ -9,24 +12,24 @@ class ModelEvaluator:
     def evaluate_ann(self, iteration):
         pass
 
-    def evaluate(self, x_train, y_train, predictor):
+    def evaluate(self, x_train, y_train, x_test, y_test, data_normalizer, predictor, cloud_metrics):
         validation_point = int(Config.VALID_SIZE * x_train.shape[0])
         x_valid = x_train[validation_point:]
         y_valid = y_train[validation_point:]
-        fitness, validation_error = self.model_trainer.fitness_manager.evaluate(lstm_predictor, data_normalizer, x_valid, y_valid)
+        fitness, validation_error = self.model_trainer.fitness_manager.evaluate(predictor, data_normalizer, x_valid, y_valid)
 
         predict_metric = cloud_metrics['predict_data']
-        best_folder_path = f'{self.results_save_path}/{predict_metric}/best_models'
+        best_folder_path = f'{Config.RESULTS_SAVE_PATH}/{predict_metric}/best_models'
 
-        model_name = lstm_predictor.model_path.split('/')[-1]
+        model_name = predictor.model_path.split('/')[-1]
         best_model_path = f'{best_folder_path}/{model_name}'
         gen_folder_in_path(best_model_path)
-        lstm_predictor.save_model(best_model_path)
+        predictor.save_model(best_model_path)
         
         best_result_path = f'{best_folder_path}/results'
         gen_folder_in_path(best_result_path)
 
-        y_predict = lstm_predictor.predict(x_test)
+        y_predict = predictor.predict(x_test)
         y_predict = data_normalizer.invert_tranform(y_predict)
         scaling_gap = np.full(y_predict.shape, validation_error)
         upper_y_predict = np.add(y_predict, scaling_gap)
@@ -83,19 +86,21 @@ class ModelEvaluator:
             # load weight
             weights_mem = None
             lstm_predictor_mem.set_weights(weights_mem)
-
-            
+            self.evaluate(x_train_mem, y_train_mem, x_test_mem, y_test_mem, mem_data_normalizer, lstm_predictor_mem, mem_cloud_metrics)
 
         elif Config.RUN_OPTION == 2:
             # cpu model - ga
             weights_cpu = None
             lstm_predictor_cpu.set_weights(weights_cpu)
+            self.evaluate(x_train_cpu, y_train_cpu, x_test_cpu, y_test_cpu, cpu_data_normalizer, lstm_predictor_cpu, cpu_cloud_metrics)
         elif Config.RUN_OPTION == 12:
             # mem-cpu model - mfea
             weights_mem = None
             lstm_predictor_mem.set_weights(weights_mem)
+            self.evaluate(x_train_mem, y_train_mem, x_test_mem, y_test_mem, mem_data_normalizer, lstm_predictor_mem, mem_cloud_metrics)
             
             weights_cpu = None
             lstm_predictor_cpu.set_weights(weights_cpu)
+            self.evaluate(x_train_cpu, y_train_cpu, x_test_cpu, y_test_cpu, cpu_data_normalizer, lstm_predictor_cpu, cpu_cloud_metrics)
         else:
             print('=== ERROR ===')

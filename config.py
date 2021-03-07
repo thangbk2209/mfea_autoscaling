@@ -58,7 +58,7 @@ class Config:
 
         MODEL_EXPERIMENT = 'lstm'  # lstm, ann
         FITNESS_TYPE = 'scaler_error'  # validation_error, scaler_error
-        METHOD_OPTIMIZE = 'ga_weight'  # evolutionary_mfea, bayesian_mfea, ga, backpropagation
+        METHOD_OPTIMIZE = 'backpropagation'  # evolutionary_mfea, bayesian_mfea, ga, backpropagation
         RESULTS_SAVE_PATH = CORE_DATA_DIR + \
             '/{}/{}/{}'.format(MODEL_EXPERIMENT, FITNESS_TYPE, METHOD_OPTIMIZE)
 
@@ -66,7 +66,7 @@ class Config:
         MAX_ITER = 5
         VERBOSE = 2
         LEARNING_RATE = 3e-4
-        EPOCHS = 1
+        EPOCHS = 1000
         EARLY_STOPPING = True
         PATIENCE = 20
         TRAIN_SIZE = 0.8
@@ -126,16 +126,18 @@ class Config:
             ]
         }
 
+        
         MODEL_EXPERIMENT = 'lstm'  # lstm, ann
         FITNESS_TYPE = 'scaler_error'  # validation_error, scaler_error
+        METHOD_OPTIMIZE = 'backpropagation'  # evolutionary_mfea, bayesian_mfea, ga_weight, backpropagation
         RESULTS_SAVE_PATH = CORE_DATA_DIR + \
-            '/{}/{}/'.format(MODEL_EXPERIMENT, FITNESS_TYPE)
+            '/{}/{}/{}'.format(MODEL_EXPERIMENT, FITNESS_TYPE, METHOD_OPTIMIZE)
 
         POPULATION_SIZE = 100
         MAX_ITER = 200
         VERBOSE = 0
         LEARNING_RATE = 3e-4
-        EPOCHS = 1
+        EPOCHS = 1000
         EARLY_STOPPING = True
         PATIENCE = 20
         TRAIN_SIZE = 0.8
