@@ -125,7 +125,7 @@ class MFEA:
                 self.population = intpopulation[:self.pop]
             elif self.selection_process == 'roulette wheel':
                 pass
-            
+
             print("Done with generation ", generation)
             decoded_bestInd_data = self.bestInd_data
             [i.decode(self.Tasks) for i in decoded_bestInd_data]
