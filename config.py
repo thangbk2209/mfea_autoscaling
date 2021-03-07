@@ -77,6 +77,7 @@ class Config:
         OPTIMIZERS = ['SGD', 'Adam', 'RMSprop', 'Adagrad']
 
         ALPHA=0.5
+        RUN_OPTION = 1 # digit 1: mem, 2: cpu
 
     elif ENV == 'experiment':
         DATA_EXPERIMENT = 'google_trace'  # grid, traffic, google_trace
@@ -145,5 +146,6 @@ class Config:
         OPTIMIZERS = ['SGD', 'Adam', 'RMSprop', 'Adagrad']
 
         ALPHA=0.5
+        RUN_OPTION = 1 # digit 1: mem, 2: cpu
     else:
         raise EnvironmentError

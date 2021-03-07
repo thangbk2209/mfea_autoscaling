@@ -22,8 +22,8 @@ class MFEA:
                 
     def init_population(self):
         self.pop += self.pop % 2
-        if self.no_of_tasks <= 1:
-            raise Exception("Number of tasks must be at least 2")
+        # if self.no_of_tasks <= 1:
+        #     raise Exception("Number of tasks must be at least 2")
         D = np.array([t.dims for t in self.Tasks])
         self.D_multitask = np.max(D)
         
