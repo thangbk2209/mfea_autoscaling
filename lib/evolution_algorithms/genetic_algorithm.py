@@ -12,8 +12,9 @@ class GenerticAlgorithmEngine:
     cross_over_rate = 0.9
     mutation_rate = 0.05
 
-    def __init__(self, fitness_function):
+    def __init__(self, fitness_function, objective):
         self.fitness_function = fitness_function
+        self.objective = objective
         self._parse_domain()
 
         self.population_size = Config.POPULATION_SIZE
