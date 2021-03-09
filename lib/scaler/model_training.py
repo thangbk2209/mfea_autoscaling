@@ -200,12 +200,12 @@ class ModelTrainer:
         elif Config.METHOD_OPTIMIZE == 'evolutionary_mfea':
             item_mem = {
                 'scaler': 1,
-                'sliding': 2,
+                'sliding': 4,
                 'batch_size': 64,
                 'network_size': 2,
-                'layer_size': 4,
-                'activation': 0,
-                'optimizer': 0,
+                'layer_size': 2,
+                'activation': 1,
+                'optimizer': 1,
                 'dropout': 0.1,
                 'learning_rate': 3e-4
             }
@@ -215,10 +215,10 @@ class ModelTrainer:
                 'scaler': 1,
                 'sliding': 4,
                 'batch_size': 64,
-                'network_size': 3,
-                'layer_size': 8,
-                'activation': 0,
-                'optimizer': 0,
+                'network_size': 2,
+                'layer_size': 4,
+                'activation': 1,
+                'optimizer': 1,
                 'dropout': 0.1,
                 'learning_rate': 3e-4
             }
@@ -238,12 +238,12 @@ class ModelTrainer:
             if Config.RUN_OPTION == 1:
                 item_mem = {
                     'scaler': 1,
-                    'sliding': 2,
+                    'sliding': 4,
                     'batch_size': 64,
                     'network_size': 2,
-                    'layer_size': 4,
-                    'activation': 0,
-                    'optimizer': 0,
+                    'layer_size': 2,
+                    'activation': 1,
+                    'optimizer': 1,
                     'dropout': 0.1,
                     'learning_rate': 3e-4
                 }
@@ -257,10 +257,10 @@ class ModelTrainer:
                     'scaler': 1,
                     'sliding': 4,
                     'batch_size': 64,
-                    'network_size': 3,
-                    'layer_size': 8,
-                    'activation': 0,
-                    'optimizer': 0,
+                    'network_size': 2,
+                    'layer_size': 4,
+                    'activation': 1,
+                    'optimizer': 1,
                     'dropout': 0.1,
                     'learning_rate': 3e-4
                 }
@@ -278,12 +278,12 @@ class ModelTrainer:
             item_cpu = {
                 'scaler': 1,
                 'sliding': 4,
-                'batch_size': 32,
-                'network_size': 3,
-                'layer_size': 8,
-                'activation': 0,
-                'optimizer': 0,
-                'dropout': 0.2,
+                'batch_size': 64,
+                'network_size': 2,
+                'layer_size': 4,
+                'activation': 1,
+                'optimizer': 1,
+                'dropout': 0.1,
                 'learning_rate': 3e-4
             }
             fitness_cpu, lstm_predictor_cpu = self.fit_with_lstm(item_cpu, cloud_metrics=cpu_cloud_metrics, fitness_type='scaler_error')
@@ -294,13 +294,13 @@ class ModelTrainer:
             }
             item_mem = {
                 'scaler': 1,
-                'sliding': 2,
-                'batch_size': 32,
+                'sliding': 4,
+                'batch_size': 64,
                 'network_size': 2,
-                'layer_size': 4,
-                'activation': 0,
-                'optimizer': 0,
-                'dropout': 0.2,
+                'layer_size': 2,
+                'activation': 1,
+                'optimizer': 1,
+                'dropout': 0.1,
                 'learning_rate': 3e-4
             }
             fitness_mem, lstm_predictor_mem = self.fit_with_lstm(item_mem, cloud_metrics=mem_cloud_metrics, fitness_type='scaler_error')

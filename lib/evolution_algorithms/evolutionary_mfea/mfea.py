@@ -153,10 +153,11 @@ class MFEA:
                     os.mkdir(resultDir)
                 resultDir1 = os.path.join(currentDir, '../../../data/mfea_result/mem_cpu/gen_{}/mem'.format(generation))
                 resultDir1 = os.path.abspath(os.path.realpath(resultDir1))
-                resultDir2 = os.path.join(currentDir, '../../../data/mfea_result/mem_cpu/gen_{}/cpu'.format(generation))
-                resultDir2 = os.path.abspath(os.path.realpath(resultDir2))
                 with open(resultDir1, 'wb') as fp:
                     pickle.dump(decoded_bestInd_data[0].solution, fp)
+
+                resultDir2 = os.path.join(currentDir, '../../../data/mfea_result/mem_cpu/gen_{}/cpu'.format(generation))
+                resultDir2 = os.path.abspath(os.path.realpath(resultDir2))
                 with open(resultDir2, 'wb') as fp:
                     pickle.dump(decoded_bestInd_data[1].solution, fp)
             elif Config.RUN_OPTION == 1:
