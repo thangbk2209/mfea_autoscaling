@@ -58,7 +58,7 @@ class Config:
 
         MODEL_EXPERIMENT = 'lstm'  # lstm, ann
         FITNESS_TYPE = 'scaler_error'  # validation_error, scaler_error
-        METHOD_OPTIMIZE = 'evolutionary_mfea'  # evolutionary_mfea, bayesian_mfea, ga_weight, backpropagation
+        METHOD_OPTIMIZE = 'backpropagation'  # evolutionary_mfea, bayesian_mfea, ga_weight, backpropagation
         RESULTS_SAVE_PATH = CORE_DATA_DIR + \
             '/{}/{}/{}'.format(MODEL_EXPERIMENT, FITNESS_TYPE, METHOD_OPTIMIZE)
 
