@@ -62,7 +62,7 @@ class Config:
         RESULTS_SAVE_PATH = CORE_DATA_DIR + \
             '/{}/{}/{}'.format(MODEL_EXPERIMENT, FITNESS_TYPE, METHOD_OPTIMIZE)
 
-        POPULATION_SIZE = 200
+        POPULATION_SIZE = 50
         MAX_ITER = 200
         VERBOSE = 2
         LEARNING_RATE = 3e-4
