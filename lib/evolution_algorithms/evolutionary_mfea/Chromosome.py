@@ -8,7 +8,7 @@ class Chromosome:
     """
     def __init__(self, D=None, rnvec=np.array([])):
         if np.size(rnvec) == 0:
-            self.rnvec = np.random.rand(D)
+            self.rnvec = np.random.uniform(-1, 1, D)
         else:
             self.rnvec = rnvec
             
@@ -34,12 +34,12 @@ class Chromosome:
         rvec = np.random.normal(0, sigma, D)
         self.rnvec = parent.rnvec + rvec
         self.rnvec[self.rnvec > 1] = 1
-        self.rnvec[self.rnvec < 0] = 0
+        self.rnvec[self.rnvec < -1] = -1
     
     def crossover(self, parent1, parent2, cf):
         self.rnvec = 0.5 * ((1+cf) * parent1.rnvec + (1-cf) * parent2.rnvec)
         self.rnvec[self.rnvec > 1] = 1
-        self.rnvec[self.rnvec < 0] = 0
+        self.rnvec[self.rnvec < -1] = -1
         
     def decode(self, Tasks):
         self.solution =  unflatten(decode(Tasks[self.skill_factor], self.rnvec), Tasks[self.skill_factor].model_shape) 

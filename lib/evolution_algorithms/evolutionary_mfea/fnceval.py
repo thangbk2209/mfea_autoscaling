@@ -6,5 +6,5 @@ def decode(Task, rnvec):
     minrange = Task.Lb[:d]
     maxrange = Task.Ub[:d]
     y = maxrange - minrange
-    variables = y * nvars + minrange
+    variables = y * (nvars + 1)/2 + minrange
     return variables

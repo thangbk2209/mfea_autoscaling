@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from lib.scaler.model_training import ModelTrainer
 from config import *
@@ -37,6 +38,11 @@ class ModelEvaluator:
 
         real_predict = np.concatenate((y_predict, y_test), axis=1)
         real_predict = np.concatenate((real_predict, upper_y_predict), axis=1)
+        print('=== start plot ===')
+        plt.plot(upper_y_predict)
+        plt.plot(y_test)
+        plt.show()
+
         prediction_df = pd.DataFrame(real_predict)
         # prediction_df.to_csv(f'{best_result_path}/prediction.csv', index=False, header=None)
 
@@ -54,12 +60,12 @@ class ModelEvaluator:
         }
         item_mem = {
             'scaler': 1,
-            'sliding': 2,
+            'sliding': 4,
             'batch_size': 64,
             'network_size': 2,
             'layer_size': 4,
-            'activation': 0,
-            'optimizer': 0,
+            'activation': 1,
+            'optimizer': 1,
             'dropout': 0.1,
             'learning_rate': 3e-4
         }
@@ -74,10 +80,10 @@ class ModelEvaluator:
             'scaler': 1,
             'sliding': 4,
             'batch_size': 64,
-            'network_size': 3,
+            'network_size': 2,
             'layer_size': 8,
-            'activation': 0,
-            'optimizer': 0,
+            'activation': 1,
+            'optimizer': 1,
             'dropout': 0.1,
             'learning_rate': 3e-4
         }
@@ -96,20 +102,20 @@ class ModelEvaluator:
 
         elif Config.RUN_OPTION == 2:
             # cpu model - ga
-            weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/cpu/gen_1/cpu'
+            weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/cpu/gen_199/cpu'
             with open(weight_path, 'rb') as fp:
                 weights_cpu = pickle.load(fp)
             lstm_predictor_cpu.set_weights(weights_cpu)
             self.evaluate(x_train_cpu, y_train_cpu, x_test_cpu, y_test_cpu, cpu_data_normalizer, lstm_predictor_cpu, cpu_cloud_metrics)
         elif Config.RUN_OPTION == 12:
             # mem-cpu model - mfea
-            mem_weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/mem_cpu/gen_2/mem'
+            mem_weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/mem_cpu/gen_199/mem'
             with open(mem_weight_path, 'rb') as fp:
                 weights_mem = pickle.load(fp)
             lstm_predictor_mem.set_weights(weights_mem)
             self.evaluate(x_train_mem, y_train_mem, x_test_mem, y_test_mem, mem_data_normalizer, lstm_predictor_mem, mem_cloud_metrics)
             
-            cpu_weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/mem_cpu/gen_1/cpu'
+            cpu_weight_path = '/Users/thangnguyen/working/hust/bkc/research/data_science/mfea_lstm/data/mfea_result/mem_cpu/gen_199/cpu'
             with open(cpu_weight_path, 'rb') as fp:
                 weights_cpu = pickle.load(fp)
             lstm_predictor_cpu.set_weights(weights_cpu)

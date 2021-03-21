@@ -50,7 +50,18 @@ class MFEAEngine:
         print(data_MFEA.EvBestFitness)
         
         currentDir = os.path.dirname(__file__)
-        resultDir = os.path.join(currentDir, '../../data/mfea_result/best_fitness.npy')
+        # resultDir = os.path.join(currentDir, '../../data/mfea_result/best_fitness.npy')
+        if Config.RUN_OPTION == 1:
+            resultDir = os.path.join(currentDir, '../../data/mfea_result/mem/best_fitness.npy')
+        elif Config.RUN_OPTION == 2:
+            resultDir = os.path.join(currentDir, '../../data/mfea_result/cpu/best_fitness.npy')
+        elif Config.RUN_OPTION == 11:
+            resultDir = os.path.join(currentDir, '../../data/mfea_result/mem_mem/best_fitness.npy')
+        elif Config.RUN_OPTION == 22:
+            resultDir = os.path.join(currentDir, '../../data/mfea_result/cpu_cpu/best_fitness.npy')
+        elif Config.RUN_OPTION == 12:
+            resultDir = os.path.join(currentDir, '../../data/mfea_result/mem_cpu/best_fitness.npy')
+
         resultDir = os.path.abspath(os.path.realpath(resultDir))
         print(resultDir)
         with open(resultDir, mode='wb') as f:
